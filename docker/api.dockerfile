@@ -4,7 +4,7 @@ RUN npm i -g pnpm@latest-10
 
 # development stage
 FROM base AS development 
-ARG APP 
+ARG APP=api
 ARG NODE_ENV=development 
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /usr/src/app 
@@ -16,7 +16,7 @@ RUN pnpm run build ${APP}
 
 # production stage
 FROM base AS production 
-ARG APP 
+ARG APP=api
 ARG NODE_ENV=production 
 ENV NODE_ENV=${NODE_ENV} 
 WORKDIR /usr/src/app 
@@ -30,5 +30,4 @@ RUN mkdir -p uploads
 
 # Add an env to save ARG
 ENV APP_MAIN_FILE=dist/apps/${APP}/main 
-CMD pnpm prisma migrate deploy --schema=./prisma/schema.prisma && \ 
-node ${APP_MAIN_FILE}
+CMD ["sh", "-c", "pnpm prisma migrate deploy --schema=./prisma/schema.prisma && node ${APP_MAIN_FILE}"]

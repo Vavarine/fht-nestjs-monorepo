@@ -4,39 +4,49 @@
 ## Running the Application
 1. Install dependencies:
 
-   ```bash
+```bash
    pnpm install
-   ```
+```
 
 2. Start the development environment using Docker (PostgreSQL and RabbitMQ):
-   ```bash
-    pnpm docker:dev:up
-   ```
+```bash
+   pnpm docker:dev:up
+```
 
 3. Migrate the database:
-   ```bash
+```bash
    pnpm prisma:dev:migrate
-   ```
+```
 
 4. Generate Prisma client:
-   ```bash
+```bash
    pnpm prisma:dev:generate
-   ```
+```
 
-5. Start the application:
-   ```bash
-   pnpm start:dev
-   ```
+5. Start the api application:
+```bash
+   pnpm start:dev api
+```
+
+6. Start the worker application:
+```bash
+   pnpm start:dev worker
+```
 
 You can now access the API at `http://localhost:3000`, and the rabbitmq management UI at `http://localhost:15672` (default username and password are both `guest`).
 
-## Running via Docker
+## Running prod via Docker Compose
 Build api image
-```
-  docker build --build-arg APP=api -t fiap-hack-api:latest . 
+```bash
+  docker build -t fiap-hack-api:latest -f docker/api.dockerfile .
 ```
 
-Run docker compose up
+Build worker image
+```bash
+   docker build -t fiap-hack-worker:latest -f docker/worker.dockerfile .
 ```
-  docker compose up
+
+Run docker compose
+```bash
+   docker compose -f docker-compose.prod.yaml up
 ```
