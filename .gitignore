@@ -1,0 +1,15 @@
+# compiled output
+/dist
+/node_modules
+
+# Logs
+*.log
+
+# Tests
+/coverage
+
+# Uploaded uploaded files
+**/uploads/*
+/uploads-test/*
+!.gitkeep
+/generated/prisma

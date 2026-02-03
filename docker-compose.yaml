@@ -1,0 +1,37 @@
+services:
+  databasedev:
+    image: postgres:17
+    container_name: fiap-hack-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - pgdatadev:/var/lib/postgresql/data
+
+  rabbitmqdev:
+    image: rabbitmq:4-management
+    container_name: fiap-hack-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+
+  api:
+    image: fiap-hack-api
+    container_name: fiap-hack-api
+    env_file:
+      - .env
+    depends_on:
+      - databasedev
+      - rabbitmqdev
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  pgdatadev:

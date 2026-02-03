@@ -1,0 +1,42 @@
+#----------------------- base ------------------------#
+FROM node:20-alpine AS base
+
+WORKDIR /app
+
+#----------------------- builder ---------------------#
+
+FROM base AS builder
+
+RUN apk add --no-cache openssl
+RUN ls -lah
+COPY ../package*.json ./
+COPY ../tsconfig*.json ./
+COPY ../prisma ./prisma/
+COPY src ./src
+
+RUN npm install -g pnpm@latest-10
+
+RUN pnpm install
+
+RUN pnpm prisma generate
+
+RUN pnpm run build
+
+#----------------------- Release ---------------------#
+
+FROM builder AS release
+
+RUN apk add --no-cache openssl
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+
+RUN mkdir -p /app/uploads
+RUN chown node:node /app/uploads
+
+USER node
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:migrate:prod"]

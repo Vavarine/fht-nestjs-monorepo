@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@api/application/*": [
+        "./apps/api/src/application/*"
+      ],
+      "@api/infra/*": [
+        "./apps/api/src/infra/*"
+      ],
+      "@api/utils/*": [
+        "./apps/api/src/utils/*"
+      ],
+      "@worker/application/*": [
+        "./apps/worker/src/application/*"
+      ],
+      "@worker/infra/*": [
+        "./apps/worker/src/infra/*"
+      ],
+      "@worker/utils/*": [
+        "./apps/worker/src/utils/*"
+      ],
+      "@file-manager": [
+        "./libs/file-manager/src/index.ts"
+      ],
+      "@file-manager/*": [
+        "./libs/file-manager/src/*"
+      ],
+      "@file-manager/application/*": [
+        "./libs/file-manager/src/application/*"
+      ],
+      "@file-manager/infra/*": [
+        "./libs/file-manager/src/infra/*"
+      ],
+      "@file-manager/utils/*": [
+        "./libs/file-manager/src/utils/*"
+      ]
+    }
+  }
+}
