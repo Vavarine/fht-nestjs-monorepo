@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { FileManager } from '@file-manager/application/interface';
 import { DiskFileManager } from '@file-manager/infra/disk/file-manager';
+import { S3FileManager } from './infra/s3/file-manager';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { DiskFileManager } from '@file-manager/infra/disk/file-manager';
   providers: [
     {
       provide: FileManager,
-      useClass: DiskFileManager,
+      useClass: S3FileManager,
     },
   ],
   exports: [FileManager],
