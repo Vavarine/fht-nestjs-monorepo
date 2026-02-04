@@ -50,3 +50,18 @@ Run docker compose
 ```bash
    docker compose -f docker-compose.prod.yaml up
 ```
+
+## To-dos
+
+- [ ] Implementar função de trocar status do job no banco via api - Messageria
+
+- [ ] Implementar a parte do processamento - ffmpeg.
+- [ ] Implementar sistema de arquivos compartilhado (Volumes Docker)
+
+- [ ] Observabilidade (Prometheus Grafana Worker)
+
+- [ ] Passar do docker-compose para K8S
+- [ ] Usuários Login Senha (Subir cognito like servico? Fazer internamente?)
+- [ ] CI/CD Buildar images
+
+- [ ] Implementar sistema de arquivos S3 Like subido pelo docker
