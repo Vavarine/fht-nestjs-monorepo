@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: fiap-hack
+data:
+  # Add non-sensitive environment variables here
+  LOG_LEVEL: "info"
+  NODE_ENV: "production"
