@@ -7,9 +7,10 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 @Injectable()
 export class S3FileManager implements FileManager {
   private readonly s3Client = new S3Client({});
+  private readonly s3ClientPublic = new S3Client({});
   private readonly bucketName = process.env.RUSTFS_BUCKET_NAME!;
   private readonly logger = new Logger(S3FileManager.name);
-  
+
   constructor() {
     this.s3Client = new S3Client({
       region: "cn-east-1",
@@ -19,6 +20,17 @@ export class S3FileManager implements FileManager {
       },
       forcePathStyle: true,
       endpoint: process.env.RUSTFS_ENDPOINT_URL!,
+    });
+
+    // Client for generating public URLs
+    this.s3ClientPublic = new S3Client({
+      region: "cn-east-1",
+      credentials: {
+        accessKeyId: process.env.RUSTFS_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.RUSTFS_SECRET_ACCESS_KEY!,
+      },
+      forcePathStyle: true,
+      endpoint: process.env.RUSTFS_ENDPOINT_URL_PUBLIC || process.env.RUSTFS_ENDPOINT_URL!,
     });
 
     // Create the bucket if it doesn't exist
@@ -77,8 +89,9 @@ export class S3FileManager implements FileManager {
 
   async getFileUrl(filename: string): Promise<string> {
     const url = await getSignedUrl(
-      this.s3Client,
-      new GetObjectCommand({ Bucket: this.bucketName, Key: filename,
+      this.s3ClientPublic,
+      new GetObjectCommand({
+        Bucket: this.bucketName, Key: filename,
         ResponseContentDisposition: "inline",
         ResponseContentType: "video/mp4",
       }),
