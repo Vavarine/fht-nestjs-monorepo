@@ -1,13 +1,15 @@
 import { FileManager } from "@file-manager/application/interface";
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { generateRandomFileName } from "@file-manager/utils/generate-random-file-name";
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { CreateBucketCommand, DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 @Injectable()
 export class S3FileManager implements FileManager {
   private readonly s3Client = new S3Client({});
   private readonly bucketName = process.env.RUSTFS_BUCKET_NAME!;
+  private readonly logger = new Logger(S3FileManager.name);
+  
 
   constructor() {
     this.s3Client = new S3Client({
@@ -19,6 +21,24 @@ export class S3FileManager implements FileManager {
       forcePathStyle: true,
       endpoint: process.env.RUSTFS_ENDPOINT_URL!,
     });
+
+    // Create the bucket if it doesn't exist
+    void this.s3Client
+      .send(new CreateBucketCommand({ Bucket: this.bucketName }))
+      .then(() => {
+        this.logger.log(`Bucket ${this.bucketName} created successfully.`);
+      })
+      .catch((err: any) => {
+        const errName = err?.name ?? "";
+        const statusCode = err?.$metadata?.httpStatusCode;
+
+        if (errName === "BucketAlreadyOwnedByYou" || errName === "BucketAlreadyExists" || statusCode === 409) {
+          this.logger.debug(`Bucket ${this.bucketName} already exists.`);
+          return;
+        }
+
+        this.logger.error(`Failed to create bucket ${this.bucketName}.`, err);
+      });
   }
 
   async save(data: Buffer, filename: string): Promise<string> {
