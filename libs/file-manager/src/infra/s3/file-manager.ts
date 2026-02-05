@@ -10,7 +10,6 @@ export class S3FileManager implements FileManager {
   private readonly bucketName = process.env.RUSTFS_BUCKET_NAME!;
   private readonly logger = new Logger(S3FileManager.name);
   
-
   constructor() {
     this.s3Client = new S3Client({
       region: "cn-east-1",
@@ -62,7 +61,7 @@ export class S3FileManager implements FileManager {
 
   async fileExists(filename: string): Promise<boolean> {
     try {
-      const a = await this.s3Client.send(new GetObjectCommand({
+      await this.s3Client.send(new GetObjectCommand({
         Bucket: this.bucketName,
         Key: filename,
       }));
