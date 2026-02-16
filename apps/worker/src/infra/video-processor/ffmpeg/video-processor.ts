@@ -32,7 +32,11 @@ export class ffmpegVideoProcessor implements VideoProcessor {
         join(outputPath, "frame_%04d.png"),
       ]);
 
-      return await this.zipDirectoryToBuffer(outputPath);
+      const zipBuffer = await this.zipDirectoryToBuffer(outputPath);
+
+      await execFileAsync("rm", ["-rf", outputPath]);
+
+      return zipBuffer;
     } catch (error) {
       const ffmpegError = error as {
         stderr?: Buffer | string;
