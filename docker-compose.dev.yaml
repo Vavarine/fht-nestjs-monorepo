@@ -35,7 +35,6 @@ services:
     volumes:
       - rustfs_data:/data
       - rustfs_logs:/logs
-    restart: unless-stopped
 volumes:
   pgdatadev:
   rustfs_data:
