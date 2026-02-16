@@ -31,7 +31,9 @@ export class ProcessVideo {
       zipBuffer,
       `${request.videoProcessingJobId}.zip`,
     );
+
     await this.fileManager.deleteById(request.fileId);
+
     this.logger.log(`Frames zip size: ${zipBuffer.length} bytes`);
   }
 }
