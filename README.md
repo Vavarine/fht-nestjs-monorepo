@@ -28,7 +28,7 @@
    pnpm start:dev api
 ```
 
-1. Start the video-processor application:
+6. Start the video-processor application:
 ```bash
    pnpm start:dev video-processor
 ```
