@@ -1,7 +1,7 @@
 import { VideoProcessingJob } from "@api/application/entities/video-processing-job";
 import { FileManager } from "@file-manager";
 import { Injectable, Logger } from "@nestjs/common";
-import { VideoProcessor } from "@worker/application/video-processor/video-processor";
+import { VideoProcessor } from "@video-processor/application/video-processor/video-processor";
 
 interface ProcessVideoRequest {
   videoProcessingJobId: string;

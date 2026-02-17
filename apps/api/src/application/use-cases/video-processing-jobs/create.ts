@@ -6,6 +6,7 @@ import { VideoProcessingPublisherJob } from "@api/application/publishers/video-p
 import { VideoProcessingJobRepository } from "@api/application/repositories/video-processing-job";
 import { Injectable } from "@nestjs/common";
 import { FileManager } from "@file-manager";
+import { create } from "domain";
 
 interface CreateVideoProcessingJobRequest {
   buffer: Buffer<ArrayBufferLike>;
@@ -38,6 +39,10 @@ export class CreateVideoProcessingJob {
 
     const createdVideoProcessingJob =
       await this.videoProcessingJobRepository.create(videoProcessingJob);
+
+    if (!createdVideoProcessingJob.videoFile) {
+      throw new Error("Video file was not saved correctly");
+    }
 
     await this.VideoProcessingPublisherJob.publish(
       createdVideoProcessingJob.id,

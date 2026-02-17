@@ -25,13 +25,13 @@
         "tsConfigPath": "libs/file-manager/tsconfig.lib.json"
       }
     },
-    "worker": {
+    "video-processor": {
       "type": "application",
-      "root": "apps/worker",
+      "root": "apps/video-processor",
       "entryFile": "main",
-      "sourceRoot": "apps/worker/src",
+      "sourceRoot": "apps/video-processor/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/worker/tsconfig.app.json"
+        "tsConfigPath": "apps/video-processor/tsconfig.app.json"
       }
     }
   }

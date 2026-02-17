@@ -1,4 +1,4 @@
-import { VideoProcessor } from "@worker/application/video-processor/video-processor";
+import { VideoProcessor } from "@video-processor/application/video-processor/video-processor";
 import { Injectable, Logger } from "@nestjs/common";
 import { execFile } from "node:child_process";
 import { mkdir } from "node:fs/promises";

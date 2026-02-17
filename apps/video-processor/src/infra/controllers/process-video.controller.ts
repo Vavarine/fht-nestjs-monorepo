@@ -5,7 +5,7 @@ import {
   Payload,
   RmqContext,
 } from "@nestjs/microservices";
-import { ProcessVideo } from "@worker/application/use-cases/video-processing-jobs/process-video";
+import { ProcessVideo } from "@video-processor/application/use-cases/video-processing-jobs/process-video";
 
 @Controller()
 export class ProcessVideoController {

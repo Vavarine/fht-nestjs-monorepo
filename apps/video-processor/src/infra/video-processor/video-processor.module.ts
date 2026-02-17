@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { VideoProcessor } from "@worker/application/video-processor/video-processor";
+import { VideoProcessor } from "@video-processor/application/video-processor/video-processor";
 import { ffmpegVideoProcessor } from "./ffmpeg/video-processor";
 
 @Module({
