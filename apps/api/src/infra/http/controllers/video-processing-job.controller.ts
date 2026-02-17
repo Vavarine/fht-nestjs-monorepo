@@ -1,5 +1,5 @@
-import { FileManager } from '@file-manager';
-import { CreateVideoProcessingJob } from '@api/application/use-cases/video-processing-jobs/create';
+import { FileManager } from "@file-manager";
+import { CreateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/create";
 import {
   Body,
   Controller,
@@ -8,43 +8,51 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
-  UseInterceptors
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+  UseInterceptors,
+  Logger,
+} from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
-} from '@nestjs/swagger';
-import { CreateVideoProcessingJobDTO } from '../dtos/video-processing';
-import { VideoProcessingView } from '../view-models/video-process-view-module';
+} from "@nestjs/swagger";
+import { CreateVideoProcessingJobDTO } from "../dtos/video-processing";
+import { VideoProcessingView } from "../view-models/video-process-view-module";
+import { Ctx, MessagePattern, Payload } from "@nestjs/microservices";
+import { UpdateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/update";
 
-@Controller('video-processing-jobs')
-@ApiBearerAuth('jwt')
+@Controller("video-processing-jobs")
+@ApiBearerAuth("jwt")
 export class VideoProcessingJobsController {
+  private readonly logger = new Logger(VideoProcessingJobsController.name);
+
   constructor(
     private createVideoProcessingJob: CreateVideoProcessingJob,
+    private updateVideoProcessingJob: UpdateVideoProcessingJob,
     private fileManager: FileManager,
-  ) { }
+  ) {}
 
   @ApiOperation({
-    summary: 'Adicionar video a fila de processamento',
+    summary: "Adicionar video a fila de processamento",
     description:
-      'Adiciona um video a fila de processamento para ser processado.',
+      "Adiciona um video a fila de processamento para ser processado.",
   })
-
-  @Post('')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @Post("")
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(FileInterceptor("file"))
   async create(
     @Body() body: CreateVideoProcessingJobDTO,
-    @UploadedFile(new ParseFilePipe({
-      validators: [
-        new MaxFileSizeValidator({ maxSize: 20 * 1024 * 1024 }), // 20MB
-        new FileTypeValidator({ fileType: "video/*" })
-      ],
-    })) file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 20 * 1024 * 1024 }), // 20MB
+          new FileTypeValidator({ fileType: "video/*" }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
   ) {
     const { buffer, originalname, mimetype } = file;
 
@@ -54,6 +62,24 @@ export class VideoProcessingJobsController {
       mimeType: mimetype,
     });
 
-    return VideoProcessingView.toHTTP(response.videoProcessingJob, this.fileManager);
+    return VideoProcessingView.toHTTP(
+      response.videoProcessingJob,
+      this.fileManager,
+    );
+  }
+
+  @MessagePattern("change_video_status")
+  async status(@Payload() data, @Ctx() context) {
+    this.logger.log("Received video status update:", data);
+
+    this.updateVideoProcessingJob.execute({
+      videoProcessingJobId: data.videoProcessingJobId,
+      status: data.status,
+      fileName: data.fileName,
+    });
+
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+    channel.ack(originalMsg);
   }
 }
