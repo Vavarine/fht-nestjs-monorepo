@@ -35,6 +35,44 @@
 
 You can now access the API at `http://localhost:3000`, and the rabbitmq management UI at `http://localhost:15672` (default username and password are both `guest`).
 
+## Observabilidade (Prometheus + Grafana)
+
+O projeto inclui um sistema completo de observabilidade para monitorar o worker de processamento de vídeo:
+
+### Serviços de Monitoramento
+
+- **Prometheus**: `http://localhost:9090` - Coleta e armazena métricas
+- **Grafana**: `http://localhost:3001` - Visualização de dashboards (admin/admin)
+
+### Métricas Disponíveis
+
+O worker expõe métricas específicas para processamento de vídeo:
+
+- `video_processing_duration_seconds` - Duração do processamento de vídeos
+- `video_processing_total` - Total de vídeos processados (sucesso/erro)
+- `video_processing_errors_total` - Total de erros por tipo e estágio
+- `video_processing_queue_size` - Tamanho atual da fila
+- `ffmpeg_command_duration_seconds` - Duração dos comandos FFmpeg
+- `video_file_size_bytes` - Tamanho dos arquivos processados
+- `worker_memory_usage_bytes` - Uso de memória do worker
+
+### Dashboard
+
+O dashboard "Video Processing Worker - Observabilidade" inclui:
+
+- Taxa de processamento em tempo real
+- Duração média de processamento
+- Tamanho da fila
+- Taxa de erros
+- Percentis de tempo de FFmpeg
+- Uso de memória
+- Análise de tamanhos de arquivo
+
+### Acessando Métricas
+
+- Worker métricas: `http://localhost:3002/metrics`
+- Prometheus targets: `http://localhost:9090/targets`
+
 ## Running prod via Docker Compose
 Build api image
 ```bash
@@ -58,7 +96,7 @@ Run docker compose
 - [ ] Implementar a parte do processamento - ffmpeg.
 - [ ] Implementar sistema de arquivos compartilhado (Volumes Docker)
 
-- [ ] Observabilidade (Prometheus Grafana Worker)
+- [x] Observabilidade (Prometheus Grafana Worker)
 
 - [ ] Passar do docker-compose para K8S
 - [ ] Usuários Login Senha (Subir cognito like servico? Fazer internamente?)

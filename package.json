@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "start": "node dist/main",
-    "start:dev": "ENV=development dotenv -e .env.dev -- nest start --watch",
+    "start:dev": "dotenv -e .env.dev -- nest start --watch",
     "test": "jest",
     "prisma:dev:studio": "dotenv -e .env.dev -- prisma studio --schema apps/api/prisma/schema.prisma --config apps/api/prisma.config.ts",
     "prisma:dev:generate": "dotenv -e .env.dev -- prisma generate --schema apps/api/prisma/schema.prisma --config apps/api/prisma.config.ts",
@@ -37,6 +37,8 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.5.0",
     "dotenv-cli": "^8.0.0",
+    "prom-client": "^15.1.0",
+    "@nestjs/terminus": "^11.0.0",
     "prisma": "^7.3.0"
   },
   "devDependencies": {

@@ -1,0 +1,41 @@
+global:
+  scrape_interval: 15s # Coleta métricas a cada 15 segundos
+  evaluation_interval: 15s # Avalia regras a cada 15 segundos
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # O próprio Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Worker de processamento de vídeo
+  - job_name: 'video-worker'
+    static_configs:
+      - targets: ['host.docker.internal:3002'] # Porta do worker
+    metrics_path: '/metrics'
+    scrape_interval: 10s # Coleta a cada 10 segundos
+    scrape_timeout: 5s   # Timeout menor que o interval
+
+  # API principal (se também tiver métricas)
+  - job_name: 'video-api'
+    static_configs:
+      - targets: ['host.docker.internal:3000'] # Porta da API
+    metrics_path: '/metrics'
+    scrape_interval: 15s # Coleta a cada 15 segundos
+    scrape_timeout: 10s  # Timeout menor que o interval
+
+  # PostgreSQL Exporter (opcional - para métricas do banco)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['host.docker.internal:9187']
+    scrape_interval: 30s
+
+  # RabbitMQ Management Plugin metrics (se habilitado)
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['host.docker.internal:15692'] # Porta de métricas do RabbitMQ
+    scrape_interval: 30s

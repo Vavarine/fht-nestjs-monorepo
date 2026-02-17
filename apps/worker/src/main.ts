@@ -40,7 +40,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   await app.startAllMicroservices();
-  await app.listen(process.env.WORKER_PORT || 3000);
+  await app.listen(process.env.WORKER_PORT || 3002);
 }
 
 bootstrap();
