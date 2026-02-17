@@ -1,6 +1,7 @@
 # base stage to have pnpm installed
 FROM node:24-alpine AS base
 RUN npm i -g pnpm@latest-10
+RUN apk add --no-cache ffmpeg
 
 # development stage
 FROM base AS development 
@@ -10,7 +11,7 @@ WORKDIR /usr/src/app
 COPY package.json pnpm-lock.yaml ./ 
 RUN pnpm i 
 COPY . . 
-RUN pnpm run build worker 
+RUN pnpm run build video-processor 
 
 # production stage
 FROM base AS production 
@@ -24,5 +25,5 @@ COPY --from=development /usr/src/app/dist ./dist
 RUN mkdir -p uploads 
 
 # Add an env to save ARG
-ENV APP_MAIN_FILE=dist/apps/worker/main 
+ENV APP_MAIN_FILE=dist/apps/video-processor/main 
 CMD ["sh", "-c", "node ${APP_MAIN_FILE}"]

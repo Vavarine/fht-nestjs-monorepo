@@ -106,6 +106,21 @@ export class S3FileManager implements FileManager {
 
   async getFileUrl(fileId: string): Promise<string> {
     const url = await getSignedUrl(
+      this.s3Client,
+      new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: fileId,
+        ResponseContentDisposition: "inline",
+        ResponseContentType: "video/mp4",
+      }),
+      { expiresIn: 3600 },
+    );
+
+    return url;
+  }
+
+  async getPublicFileUrl(fileId: string): Promise<string> {
+    const url = await getSignedUrl(
       this.s3ClientPublic,
       new GetObjectCommand({
         Bucket: this.bucketName,

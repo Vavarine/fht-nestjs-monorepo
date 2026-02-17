@@ -54,9 +54,9 @@ services:
       - "3000:3000"
     restart: unless-stopped
 
-  worker:
-    image: fiap-hack-worker
-    container_name: fiap-hack-worker
+  video-processor:
+    image: fiap-hack-video-processor
+    container_name: fiap-hack-video-processor
     env_file:
       - .env
     depends_on:
