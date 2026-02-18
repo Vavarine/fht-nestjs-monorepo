@@ -84,10 +84,11 @@ metadata:
   name: rabbitmq-external
   namespace: fiap-hack
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: rabbitmq
   ports:
   - port: 15672
     targetPort: 15672
+    nodePort: 31672
     name: management

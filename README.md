@@ -51,6 +51,49 @@ Run docker compose
    docker compose -f docker-compose.prod.yaml up
 ```
 
+## Running on Kubernetes (k3d + k3s)
+
+### Prerequisites
+- `docker`
+- `kubectl`
+- `k3d`
+
+### 1. Create (or recreate) local cluster
+This script creates a k3d cluster with host ports already mapped for local access.
+
+```bash
+./k8s/create-k3d-cluster.sh
+```
+
+If script execution is blocked, grant execute permission first:
+
+```bash
+chmod +x k8s/create-k3d-cluster.sh k8s/deploy.sh
+```
+
+### 2. Deploy all Kubernetes resources
+```bash
+./k8s/deploy.sh
+```
+
+### 3. Validate resources
+```bash
+kubectl get pods -n fiap-hack
+kubectl get svc -n fiap-hack
+```
+
+### 4. Access services
+- API (NodePort): `http://localhost:30080`
+- RustFS Console: `http://localhost:30901/rustfs/console/index.html`
+- RabbitMQ Management: `http://localhost:31672`
+
+### 5. Useful debug commands
+```bash
+kubectl logs -n fiap-hack deployment/api -f
+kubectl logs -n fiap-hack deployment/video-processor -f
+kubectl get events -n fiap-hack --sort-by='.lastTimestamp'
+```
+
 ## To-dos
 
 - [ ] Implementar função de trocar status do job no banco via api - Messageria

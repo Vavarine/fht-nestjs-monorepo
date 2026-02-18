@@ -16,6 +16,20 @@ spec:
       containers:
       - name: rustfs
         image: rustfs/rustfs:latest
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        env:
+        - name: RUSTFS_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: FS_ACCESS_KEY_ID
+        - name: RUSTFS_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: FS_SECRET_ACCESS_KEY
         ports:
         - containerPort: 9000
           name: http
@@ -73,4 +87,20 @@ spec:
     name: http
   - port: 9001
     targetPort: 9001
+    name: admin
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rustfs-management
+  namespace: fiap-hack
+spec:
+  type: NodePort
+  selector:
+    app: rustfs
+  ports:
+  - port: 9001
+    targetPort: 9001
+    nodePort: 30901
     name: admin

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api
+  name: video-processor
   namespace: fiap-hack
 spec:
   replicas: 2
@@ -12,21 +12,21 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: api
+      app: video-processor
   template:
     metadata:
       labels:
-        app: api
+        app: video-processor
     spec:
       containers:
-      - name: api
-        image: vavarine/fiap-hack-api:latest
+      - name: video-processor
+        image: vavarine/fiap-hack-video-processor:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
           name: http
         env:
-        - name: API_PORT
+        - name: WORKER_PORT
           value: "3000"
         envFrom:
         - configMapRef:
@@ -68,32 +68,16 @@ spec:
         command: ['sh', '-c', 'attempt=0; until nc -z rustfs 9000; do attempt=$((attempt+1)); if [ "$attempt" -ge 150 ]; then echo timeout waiting for rustfs; exit 1; fi; echo waiting for rustfs; sleep 2; done']
 
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: api
-  namespace: fiap-hack
-spec:
-  selector:
-    app: api
-  type: NodePort
-  ports:
-  - port: 80
-    targetPort: 3000
-    nodePort: 30080
-    name: http
-
----
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: api-hpa
+  name: video-processor-hpa
   namespace: fiap-hack
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: api
+    name: video-processor
   minReplicas: 2
   maxReplicas: 5
   metrics:
