@@ -84,7 +84,7 @@ kubectl get svc -n fiap-hack
 
 ### 4. Acesse os serviços
 - API (NodePort): `http://localhost:30080`
-- RustFS Console: `http://localhost:30901/rustfs/console/index.html`
+- RustFS Console: `http://localhost:30901`
 - RabbitMQ Management: `http://localhost:31672`
 
 ### 5. Comandos úteis de debug
