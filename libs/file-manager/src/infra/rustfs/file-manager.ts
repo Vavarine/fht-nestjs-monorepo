@@ -11,11 +11,11 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 @Injectable()
-export class S3FileManager implements FileManager {
+export class RustFSFileManager implements FileManager {
   private readonly s3Client = new S3Client({});
   private readonly s3ClientPublic = new S3Client({});
   private readonly bucketName = process.env.FS_BUCKET_NAME!;
-  private readonly logger = new Logger(S3FileManager.name);
+  private readonly logger = new Logger(RustFSFileManager.name);
 
   constructor() {
     this.s3Client = new S3Client({
