@@ -94,6 +94,38 @@ kubectl logs -n fiap-hack deployment/video-processor -f
 kubectl get events -n fiap-hack --sort-by='.lastTimestamp'
 ```
 
+## Teste de carga com k6
+
+O projeto possui um script de carga em `k6/api-load.ts` para o endpoint:
+- `POST /video-processing-jobs` (multipart/form-data)
+
+O upload usa o arquivo local `k6/exemple.mp4` por padrão.
+
+### Opção 1: k6 instalado localmente
+```bash
+pnpm loadtest:k6
+```
+
+### Opção 2: rodar k6 via Docker
+```bash
+pnpm loadtest:k6:docker
+```
+
+### Personalizar alvo do teste
+```bash
+BASE_URL=http://localhost:30080 TARGET_PATH=/video-processing-jobs pnpm loadtest:k6
+```
+
+### Personalizar arquivo de vídeo de entrada
+```bash
+VIDEO_FILE_PATH=./k6/exemple.mp4 pnpm loadtest:k6
+```
+
+### Endpoint protegido (Bearer token)
+```bash
+AUTH_TOKEN=<seu_token_jwt> pnpm loadtest:k6
+```
+
 ## To-dos
 
 - [ ] Implementar função de trocar status do job no banco via api - Messageria
