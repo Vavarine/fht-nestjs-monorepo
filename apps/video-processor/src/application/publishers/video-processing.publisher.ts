@@ -1,6 +1,7 @@
 export abstract class VideoProcessingPublisherJob {
   abstract publish(
+    status: string,
     videoProcessingJobId: string,
-    fileId: string
+    fileName?: string,
   ): Promise<void>;
 }

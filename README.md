@@ -96,7 +96,7 @@ kubectl get events -n fiap-hack --sort-by='.lastTimestamp'
 
 ## To-dos
 
-- [ ] Implementar função de trocar status do job no banco via api - Messageria
+- [x] Implementar função de trocar status do job no banco via api - Messageria
 
 - [x] Implementar a parte do processamento - ffmpeg.
 - [x] Implementar sistema de arquivos compartilhado (Volumes Docker)
