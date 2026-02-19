@@ -6,12 +6,12 @@ import { VideoProcessingPublisherJob } from "@api/application/publishers/video-p
 import { VideoProcessingJobRepository } from "@api/application/repositories/video-processing-job";
 import { Injectable } from "@nestjs/common";
 import { FileManager } from "@file-manager";
-import { create } from "domain";
 
 interface CreateVideoProcessingJobRequest {
   buffer: Buffer<ArrayBufferLike>;
   originalFileName: string;
   mimeType: string;
+  userId: string;
 }
 
 interface CreateVideoProcessingJobResponse {
@@ -35,6 +35,7 @@ export class CreateVideoProcessingJob {
     const videoProcessingJob = new VideoProcessingJob({
       status: VideoProcessingJobStatus.PENDING,
       videoFile: fileName,
+      userId: request.userId,
     });
 
     const createdVideoProcessingJob =

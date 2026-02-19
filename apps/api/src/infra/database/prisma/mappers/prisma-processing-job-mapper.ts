@@ -7,6 +7,7 @@ export class PrismaVideoProcessingJobMapper {
       {
         videoFile: raw.videoFile,
         status: raw.status as VideoProcessingJob["status"],
+        userId: raw.userId,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
