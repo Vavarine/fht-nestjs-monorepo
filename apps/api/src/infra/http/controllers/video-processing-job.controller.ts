@@ -98,7 +98,9 @@ export class VideoProcessingJobsController {
 
   @MessagePattern("change_video_status")
   async status(@Payload() data, @Ctx() context) {
-    this.logger.log("Received video status update:", data);
+    this.logger.log(
+      "change status message received for job id: " + data.videoProcessingJobId,
+    );
 
     this.updateVideoProcessingJob.execute({
       videoProcessingJobId: data.videoProcessingJobId,

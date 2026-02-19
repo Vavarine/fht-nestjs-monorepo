@@ -56,8 +56,6 @@ export class PrismaVideoProcessingJobRepository implements VideoProcessingJobRep
       },
     });
 
-    console.log(videoProcessingJobs);
-
     return videoProcessingJobs.map((job) =>
       PrismaVideoProcessingJobMapper.toDomain(job),
     );

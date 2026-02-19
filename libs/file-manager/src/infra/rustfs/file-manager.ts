@@ -64,10 +64,7 @@ export class RustFSFileManager implements FileManager {
       });
   }
 
-  async save(
-    data: Buffer | Readable,
-    fileId: string,
-  ): Promise<string> {
+  async save(data: Buffer | Readable, fileId: string): Promise<string> {
     const randomFileName = generateRandomFileName(fileId);
 
     await this.s3Client.send(
@@ -157,7 +154,7 @@ export class RustFSFileManager implements FileManager {
         return data;
       }
     } catch (error) {
-      console.log(error);
+      this.logger.error(`Error getting file with ID ${fileId}:`, error);
     }
 
     return null;

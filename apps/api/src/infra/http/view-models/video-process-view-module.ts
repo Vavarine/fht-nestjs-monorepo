@@ -11,8 +11,6 @@ export class VideoProcessingView {
     const port = process.env.API_PORT || "3000";
     const baseUrl = `${host}:${port}`;
 
-    console.log(videoProcessingJob, videoProcessingJob.videoFile);
-
     return {
       id: videoProcessingJob.id,
       videoFile: await fileManager.getFileUrl(
