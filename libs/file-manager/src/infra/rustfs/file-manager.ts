@@ -9,6 +9,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { Readable } from "node:stream";
 
 @Injectable()
 export class RustFSFileManager implements FileManager {
@@ -63,7 +64,10 @@ export class RustFSFileManager implements FileManager {
       });
   }
 
-  async save(data: Buffer, fileId: string): Promise<string> {
+  async save(
+    data: Buffer | Readable,
+    fileId: string,
+  ): Promise<string> {
     const randomFileName = generateRandomFileName(fileId);
 
     await this.s3Client.send(

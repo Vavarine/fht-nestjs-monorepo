@@ -35,11 +35,11 @@ spec:
             name: app-secrets
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
             memory: "1Gi"
             cpu: "1000m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
         livenessProbe:
           httpGet:
             path: /
@@ -65,7 +65,7 @@ spec:
         command: ['sh', '-c', 'attempt=0; until nc -z rabbitmq 5672; do attempt=$((attempt+1)); if [ "$attempt" -ge 150 ]; then echo timeout waiting for rabbitmq; exit 1; fi; echo waiting for rabbitmq; sleep 2; done']
       - name: wait-for-rustfs
         image: busybox:1.28
-        command: ['sh', '-c', 'attempt=0; until nc -z rustfs 9000; do attempt=$((attempt+1)); if [ "$attempt" -ge 150 ]; then echo timeout waiting for rustfs; exit 1; fi; echo waiting for rustfs; sleep 2; done']
+        command: ['sh', '-c', 'attempt=0; until wget -q --spider http://rustfs-svc:9000/health; do attempt=$((attempt+1)); if [ "$attempt" -ge 150 ]; then echo timeout waiting for rustfs health; exit 1; fi; echo waiting for rustfs health; sleep 2; done']
 
 ---
 apiVersion: autoscaling/v2
@@ -78,8 +78,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: video-processor
-  minReplicas: 2
-  maxReplicas: 5
+  minReplicas: 1
+  maxReplicas: 2
   metrics:
   - type: Resource
     resource:

@@ -17,7 +17,9 @@
     "prisma:dev:reset": "dotenv -e .env.dev -- prisma migrate reset --force --schema apps/api/prisma/schema.prisma --config apps/api/prisma.config.ts",
     "docker:dev:up": "docker compose --env-file .env.dev -f docker-compose.dev.yaml up -d",
     "docker:dev:down": "docker compose --env-file .env.dev -f docker-compose.dev.yaml down",
-    "start:migrate:prod": "prisma migrate deploy && pnpm run start"
+    "start:migrate:prod": "prisma migrate deploy && pnpm run start",
+    "loadtest:k6": "k6 run k6/api-load.ts",
+    "loadtest:k6:docker": "docker run --rm --network host -v $(pwd)/k6:/scripts -e BASE_URL=http://localhost:30080 grafana/k6 run /scripts/api-load.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.982.0",
@@ -54,6 +56,7 @@
     "@types/express": "^5.0.1",
     "@types/fluent-ffmpeg": "^2.1.28",
     "@types/jest": "29.5.14",
+    "@types/k6": "^1.6.0",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.15.3",
     "@types/supertest": "^6.0.3",

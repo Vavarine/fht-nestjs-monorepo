@@ -34,6 +34,7 @@ async function bootstrap() {
       queue:
         process.env.VIDEO_PROCESSING_SERVICE_QUEUE || "video_processing_queue",
       noAck: false,
+      prefetchCount: Number(process.env.RABBITMQ_PREFETCH_COUNT || "1"),
       queueOptions: {
         durable: true,
       },
