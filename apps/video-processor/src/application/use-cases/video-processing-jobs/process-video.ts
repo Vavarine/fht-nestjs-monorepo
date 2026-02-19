@@ -1,7 +1,8 @@
-import { VideoProcessingJob } from "@api/application/entities/video-processing-job";
 import { FileManager } from "@file-manager";
 import { Injectable, Logger } from "@nestjs/common";
 import { VideoProcessor } from "@video-processor/application/video-processor/video-processor";
+import { createReadStream } from "node:fs";
+import { rm } from "node:fs/promises";
 
 interface ProcessVideoRequest {
   videoProcessingJobId: string;
@@ -23,17 +24,25 @@ export class ProcessVideo {
       process.env.FS_ENDPOINT_URL_PUBLIC || "http://localhost:9000",
     );
 
-    const zipBuffer = await this.videoProcessor.process(
+    const artifact = await this.videoProcessor.process(
       fileUrl,
       request.videoProcessingJobId,
     );
-    await this.fileManager.save(
-      zipBuffer,
-      `${request.videoProcessingJobId}.zip`,
-    );
 
-    await this.fileManager.deleteById(request.fileId);
+    try {
+      await this.fileManager.save(
+        createReadStream(artifact.zipFilePath),
+        `${request.videoProcessingJobId}.zip`,
+      );
 
-    this.logger.log(`Frames zip size: ${zipBuffer.length} bytes`);
+      await this.fileManager.deleteById(request.fileId);
+
+      this.logger.log(
+        `Processed and uploaded video job id: ${request.videoProcessingJobId}`,
+      );
+    } finally {
+      await rm(artifact.outputDirPath, { recursive: true, force: true });
+      await rm(artifact.zipFilePath, { force: true });
+    }
   }
 }

@@ -1,9 +1,12 @@
-import { VideoProcessor } from "@video-processor/application/video-processor/video-processor";
+import {
+  ProcessedVideoArtifact,
+  VideoProcessor,
+} from "@video-processor/application/video-processor/video-processor";
 import { Injectable, Logger } from "@nestjs/common";
 import { execFile } from "node:child_process";
-import { mkdir } from "node:fs/promises";
+import { createWriteStream } from "node:fs";
+import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
-import { PassThrough } from "node:stream";
 import { promisify } from "node:util";
 import * as archiver from "archiver";
 
@@ -16,8 +19,9 @@ export class ffmpegVideoProcessor implements VideoProcessor {
   async process(
     inputPath: string,
     videoProcessingJobId: string,
-  ): Promise<Buffer> {
+  ): Promise<ProcessedVideoArtifact> {
     const outputPath = join("/tmp", videoProcessingJobId);
+    const zipFilePath = `${outputPath}.zip`;
 
     this.logger.log(`Processing video: ${videoProcessingJobId}`);
 
@@ -32,12 +36,15 @@ export class ffmpegVideoProcessor implements VideoProcessor {
         join(outputPath, "frame_%04d.png"),
       ]);
 
-      const zipBuffer = await this.zipDirectoryToBuffer(outputPath);
+      await this.zipDirectoryToFile(outputPath, zipFilePath);
 
-      await execFileAsync("rm", ["-rf", outputPath]);
-
-      return zipBuffer;
+      return {
+        zipFilePath,
+        outputDirPath: outputPath,
+      };
     } catch (error) {
+      await this.cleanup(outputPath, zipFilePath);
+
       const ffmpegError = error as {
         stderr?: Buffer | string;
         message?: string;
@@ -51,14 +58,20 @@ export class ffmpegVideoProcessor implements VideoProcessor {
     }
   }
 
-  private async zipDirectoryToBuffer(sourceDir: string): Promise<Buffer> {
+  async cleanup(outputPath: string, zipFilePath: string): Promise<void> {
+    await rm(outputPath, { recursive: true, force: true });
+    await rm(zipFilePath, { force: true });
+  }
+
+  private async zipDirectoryToFile(
+    sourceDir: string,
+    zipFilePath: string,
+  ): Promise<void> {
     const archive = archiver("zip", { zlib: { level: 9 } });
-    const output = new PassThrough();
-    const chunks: Buffer[] = [];
+    const output = createWriteStream(zipFilePath);
 
     return new Promise((resolve, reject) => {
-      output.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
-      output.on("end", () => resolve(Buffer.concat(chunks)));
+      output.on("close", () => resolve());
       output.on("error", reject);
       archive.on("error", reject);
 

@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rustfs-bootstrap-bucket
+  namespace: fiap-hack
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        app: rustfs-bootstrap-bucket
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: bootstrap-bucket
+        image: amazon/aws-cli:2.17.56
+        env:
+        - name: FS_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: FS_BUCKET_NAME
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: FS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: FS_SECRET_ACCESS_KEY
+        - name: AWS_DEFAULT_REGION
+          value: "cn-east-1"
+        command:
+        - /bin/sh
+        - -ec
+        - |
+          endpoint="http://rustfs-svc:9000"
+          bucket="${FS_BUCKET_NAME}"
+
+          echo "Aguardando endpoint S3 do RustFS..."
+          attempts=0
+          until aws --endpoint-url "$endpoint" s3api list-buckets >/dev/null 2>&1; do
+            attempts=$((attempts+1))
+            if [ "$attempts" -ge 120 ]; then
+              echo "timeout aguardando RustFS S3 endpoint"
+              exit 1
+            fi
+            sleep 2
+          done
+
+          echo "Garantindo bucket: $bucket"
+          if aws --endpoint-url "$endpoint" s3api head-bucket --bucket "$bucket" >/dev/null 2>&1; then
+            echo "Bucket já existe: $bucket"
+          else
+            aws --endpoint-url "$endpoint" s3api create-bucket --bucket "$bucket"
+            echo "Bucket criado: $bucket"
+          fi

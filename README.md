@@ -57,6 +57,7 @@ Suba com docker compose:
 - `docker`
 - `kubectl`
 - `k3d`
+- `helm` (v3+)
 
 ### 1. Crie (ou recrie) o cluster local
 Esse script cria um cluster k3d com portas do host já mapeadas para acesso local.
@@ -74,6 +75,20 @@ chmod +x k8s/create-k3d-cluster.sh k8s/deploy.sh
 ### 2. Faça o deploy de todos os recursos Kubernetes
 ```bash
 ./k8s/deploy.sh
+```
+
+Observação: o RustFS é instalado via Helm (`rustfs/rustfs`) usando o arquivo `k8s/rustfs-helm-values.yaml`.
+
+Se o Helm falhar no seu ambiente, você pode usar o modo manifesto (fallback):
+```bash
+RUSTFS_DEPLOY_MODE=manifest ./k8s/deploy.sh
+```
+
+Para depurar erro de Helm:
+```bash
+helm repo add rustfs https://charts.rustfs.com --force-update
+helm repo update
+helm search repo rustfs
 ```
 
 ### 3. Valide os recursos
