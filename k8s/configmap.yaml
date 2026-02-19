@@ -4,11 +4,10 @@ metadata:
   name: app-config
   namespace: fiap-hack
 data:
-  # Add non-sensitive environment variables here
   LOG_LEVEL: "info"
   NODE_ENV: "production"
   API_PORT: "3000"
-  WORKER_PORT: "3000"
+  VIDEO_PROCESSOR_PORT: "3000"
   RABBITMQ_URL: "amqp://rabbitmq:5672"
   FS_ENDPOINT_URL: "http://rustfs:9000"
   FS_ENDPOINT_URL_PUBLIC: "http://localhost:9000"
