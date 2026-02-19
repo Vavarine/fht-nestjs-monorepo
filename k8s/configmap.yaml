@@ -10,7 +10,7 @@ data:
   VIDEO_PROCESSOR_PORT: "3000"
   RABBITMQ_URL: "amqp://rabbitmq:5672"
   RABBITMQ_PREFETCH_COUNT: "1"
-  RABBITMQ_REQUEUE_ON_ERROR: "false"
+  RABBITMQ_REQUEUE_ON_ERROR: "true"
   FS_ENDPOINT_URL: "http://rustfs-svc:9000"
   FS_ENDPOINT_URL_PUBLIC: "http://localhost:9000"
   FS_BUCKET_NAME: "fht-videos-dev"
