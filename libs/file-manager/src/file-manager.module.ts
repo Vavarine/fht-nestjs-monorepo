@@ -1,12 +1,12 @@
 import { Module } from "@nestjs/common";
 import { FileManager } from "@file-manager/application/interface";
-import { S3FileManager } from "./infra/s3/file-manager";
+import { RustFSFileManager } from "./infra/rustfs/file-manager";
 
 @Module({
   providers: [
     {
       provide: FileManager,
-      useClass: S3FileManager,
+      useClass: RustFSFileManager,
     },
   ],
   exports: [FileManager],

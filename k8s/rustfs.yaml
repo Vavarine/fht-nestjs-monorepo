@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rustfs
+  namespace: fiap-hack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rustfs
+  template:
+    metadata:
+      labels:
+        app: rustfs
+    spec:
+      containers:
+      - name: rustfs
+        image: rustfs/rustfs:latest
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        env:
+        - name: RUSTFS_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: FS_ACCESS_KEY_ID
+        - name: RUSTFS_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: FS_SECRET_ACCESS_KEY
+        ports:
+        - containerPort: 9000
+          name: http
+        - containerPort: 9001
+          name: admin
+        volumeMounts:
+        - name: rustfs-data
+          mountPath: /data
+        - name: rustfs-logs
+          mountPath: /logs
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: rustfs-data
+        persistentVolumeClaim:
+          claimName: rustfs-data-pvc
+      - name: rustfs-logs
+        persistentVolumeClaim:
+          claimName: rustfs-logs-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rustfs
+  namespace: fiap-hack
+spec:
+  selector:
+    app: rustfs
+  type: ClusterIP
+  ports:
+  - port: 9000
+    targetPort: 9000
+    name: http
+  - port: 9001
+    targetPort: 9001
+    name: admin
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rustfs-management
+  namespace: fiap-hack
+spec:
+  type: NodePort
+  selector:
+    app: rustfs
+  ports:
+  - port: 9001
+    targetPort: 9001
+    nodePort: 30901
+    name: admin
