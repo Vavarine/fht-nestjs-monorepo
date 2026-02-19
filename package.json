@@ -10,7 +10,7 @@
     "start": "node dist/main",
     "start:dev": "ENV=development dotenv -e .env.dev -- nest start --watch",
     "test": "jest",
-    "prisma:dev:studio": "dotenv -e .env.dev -- prisma studio --schema apps/api/prisma/schema.prisma --config apps/api/prisma.config.ts",
+    "prisma:dev:studio": "dotenv -e .env.dev -- prisma studio --config apps/api/prisma.config.ts",
     "prisma:dev:generate": "dotenv -e .env.dev -- prisma generate --schema apps/api/prisma/schema.prisma --config apps/api/prisma.config.ts",
     "prisma:dev:migrate": "dotenv -e .env.dev -- prisma migrate dev --schema apps/api/prisma/schema.prisma --config apps/api/prisma.config.ts",
     "prisma:dev:migrate:deploy": "dotenv -e .env.dev -- prisma migrate deploy --schema apps/api/prisma/schema.prisma --config apps/api/prisma.config.ts",
