@@ -13,6 +13,7 @@ export interface VideoProcessingJobProps {
   status: VideoProcessingJobStatus;
   createdAt?: Date;
   updatedAt?: Date;
+  userId: string;
 }
 
 export class VideoProcessingJob {
@@ -51,6 +52,10 @@ export class VideoProcessingJob {
 
   public set status(status: VideoProcessingJobStatus) {
     this.props.status = status;
+  }
+
+  public get userId() {
+    return this.props.userId;
   }
 
   public get createdAt() {

@@ -14,6 +14,7 @@ export class PrismaVideoProcessingJobRepository implements VideoProcessingJobRep
         data: {
           videoFile: job.videoFile,
           status: job.status,
+          userId: job.userId,
         },
       });
 
@@ -46,5 +47,19 @@ export class PrismaVideoProcessingJobRepository implements VideoProcessingJobRep
         },
       });
     return PrismaVideoProcessingJobMapper.toDomain(updatedVideoProcessingJob);
+  }
+
+  async findByUserId(userId: string): Promise<VideoProcessingJob[]> {
+    const videoProcessingJobs = await this.prisma.videoProcessingJob.findMany({
+      where: {
+        userId,
+      },
+    });
+
+    console.log(videoProcessingJobs);
+
+    return videoProcessingJobs.map((job) =>
+      PrismaVideoProcessingJobMapper.toDomain(job),
+    );
   }
 }

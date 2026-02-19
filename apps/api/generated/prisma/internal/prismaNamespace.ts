@@ -523,7 +523,8 @@ export const VideoProcessingJobScalarFieldEnum = {
   processedFile: 'processedFile',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  userId: 'userId'
 } as const
 
 export type VideoProcessingJobScalarFieldEnum = (typeof VideoProcessingJobScalarFieldEnum)[keyof typeof VideoProcessingJobScalarFieldEnum]

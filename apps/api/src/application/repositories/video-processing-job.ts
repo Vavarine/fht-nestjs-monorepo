@@ -8,4 +8,5 @@ export abstract class VideoProcessingJobRepository {
     videoProcessingJob: VideoProcessingJob,
   ): Promise<VideoProcessingJob>;
   abstract findById(id: string): Promise<VideoProcessingJob | null>;
+  abstract findByUserId(userId: string): Promise<VideoProcessingJob[]>;
 }

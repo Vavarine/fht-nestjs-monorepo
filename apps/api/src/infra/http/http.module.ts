@@ -5,10 +5,15 @@ import { VideoProcessingJobsController } from "./controllers/video-processing-jo
 import { MessagingModule } from "@api/infra/messaging/messaging.module";
 import { FileManagerModule } from "@file-manager";
 import { UpdateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/update";
+import { ListVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/list";
 
 @Module({
   imports: [DatabaseModule, FileManagerModule, MessagingModule],
   controllers: [VideoProcessingJobsController],
-  providers: [CreateVideoProcessingJob, UpdateVideoProcessingJob],
+  providers: [
+    CreateVideoProcessingJob,
+    UpdateVideoProcessingJob,
+    ListVideoProcessingJob,
+  ],
 })
 export class HttpModule {}

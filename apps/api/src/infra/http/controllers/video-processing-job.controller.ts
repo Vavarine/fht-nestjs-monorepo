@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Logger,
+  Get,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
@@ -22,6 +23,7 @@ import { CreateVideoProcessingJobDTO } from "../dtos/video-processing";
 import { VideoProcessingView } from "../view-models/video-process-view-module";
 import { Ctx, MessagePattern, Payload } from "@nestjs/microservices";
 import { UpdateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/update";
+import { ListVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/list";
 
 @Controller("video-processing-jobs")
 @ApiBearerAuth("jwt")
@@ -31,6 +33,7 @@ export class VideoProcessingJobsController {
   constructor(
     private createVideoProcessingJob: CreateVideoProcessingJob,
     private updateVideoProcessingJob: UpdateVideoProcessingJob,
+    private listVideoProcessingJob: ListVideoProcessingJob,
     private fileManager: FileManager,
   ) {}
 
@@ -60,12 +63,37 @@ export class VideoProcessingJobsController {
       buffer,
       originalFileName: originalname,
       mimeType: mimetype,
+      userId: "MOCK",
     });
 
     return VideoProcessingView.toHTTP(
       response.videoProcessingJob,
       this.fileManager,
     );
+  }
+
+  @ApiOperation({
+    summary: "Lista videos de um usuario",
+    description: "Lista os videos de um usuario",
+  })
+  @Get("")
+  async list() {
+    try {
+      const response = await this.listVideoProcessingJob.execute({
+        userId: "MOCK",
+      });
+
+      return Promise.allSettled(
+        response.videoProcessingJobs.map((job) =>
+          VideoProcessingView.toHTTP(job, this.fileManager),
+        ),
+      ).then((results) =>
+        results.filter((r) => r.status === "fulfilled").map((r) => r.value),
+      );
+    } catch (error) {
+      this.logger.error("Error listing video processing jobs:", error);
+      throw error;
+    }
   }
 
   @MessagePattern("change_video_status")

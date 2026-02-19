@@ -31,6 +31,7 @@ export type VideoProcessingJobMinAggregateOutputType = {
   status: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  userId: string | null
 }
 
 export type VideoProcessingJobMaxAggregateOutputType = {
@@ -40,6 +41,7 @@ export type VideoProcessingJobMaxAggregateOutputType = {
   status: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  userId: string | null
 }
 
 export type VideoProcessingJobCountAggregateOutputType = {
@@ -49,6 +51,7 @@ export type VideoProcessingJobCountAggregateOutputType = {
   status: number
   createdAt: number
   updatedAt: number
+  userId: number
   _all: number
 }
 
@@ -60,6 +63,7 @@ export type VideoProcessingJobMinAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  userId?: true
 }
 
 export type VideoProcessingJobMaxAggregateInputType = {
@@ -69,6 +73,7 @@ export type VideoProcessingJobMaxAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  userId?: true
 }
 
 export type VideoProcessingJobCountAggregateInputType = {
@@ -78,6 +83,7 @@ export type VideoProcessingJobCountAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  userId?: true
   _all?: true
 }
 
@@ -160,6 +166,7 @@ export type VideoProcessingJobGroupByOutputType = {
   status: string
   createdAt: Date
   updatedAt: Date
+  userId: string
   _count: VideoProcessingJobCountAggregateOutputType | null
   _min: VideoProcessingJobMinAggregateOutputType | null
   _max: VideoProcessingJobMaxAggregateOutputType | null
@@ -190,6 +197,7 @@ export type VideoProcessingJobWhereInput = {
   status?: Prisma.StringFilter<"VideoProcessingJob"> | string
   createdAt?: Prisma.DateTimeFilter<"VideoProcessingJob"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"VideoProcessingJob"> | Date | string
+  userId?: Prisma.StringFilter<"VideoProcessingJob"> | string
 }
 
 export type VideoProcessingJobOrderByWithRelationInput = {
@@ -199,6 +207,7 @@ export type VideoProcessingJobOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type VideoProcessingJobWhereUniqueInput = Prisma.AtLeast<{
@@ -211,6 +220,7 @@ export type VideoProcessingJobWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"VideoProcessingJob"> | string
   createdAt?: Prisma.DateTimeFilter<"VideoProcessingJob"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"VideoProcessingJob"> | Date | string
+  userId?: Prisma.StringFilter<"VideoProcessingJob"> | string
 }, "id">
 
 export type VideoProcessingJobOrderByWithAggregationInput = {
@@ -220,6 +230,7 @@ export type VideoProcessingJobOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   _count?: Prisma.VideoProcessingJobCountOrderByAggregateInput
   _max?: Prisma.VideoProcessingJobMaxOrderByAggregateInput
   _min?: Prisma.VideoProcessingJobMinOrderByAggregateInput
@@ -235,6 +246,7 @@ export type VideoProcessingJobScalarWhereWithAggregatesInput = {
   status?: Prisma.StringWithAggregatesFilter<"VideoProcessingJob"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"VideoProcessingJob"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"VideoProcessingJob"> | Date | string
+  userId?: Prisma.StringWithAggregatesFilter<"VideoProcessingJob"> | string
 }
 
 export type VideoProcessingJobCreateInput = {
@@ -244,6 +256,7 @@ export type VideoProcessingJobCreateInput = {
   status: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  userId: string
 }
 
 export type VideoProcessingJobUncheckedCreateInput = {
@@ -253,6 +266,7 @@ export type VideoProcessingJobUncheckedCreateInput = {
   status: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  userId: string
 }
 
 export type VideoProcessingJobUpdateInput = {
@@ -262,6 +276,7 @@ export type VideoProcessingJobUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type VideoProcessingJobUncheckedUpdateInput = {
@@ -271,6 +286,7 @@ export type VideoProcessingJobUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type VideoProcessingJobCreateManyInput = {
@@ -280,6 +296,7 @@ export type VideoProcessingJobCreateManyInput = {
   status: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  userId: string
 }
 
 export type VideoProcessingJobUpdateManyMutationInput = {
@@ -289,6 +306,7 @@ export type VideoProcessingJobUpdateManyMutationInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type VideoProcessingJobUncheckedUpdateManyInput = {
@@ -298,6 +316,7 @@ export type VideoProcessingJobUncheckedUpdateManyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type VideoProcessingJobCountOrderByAggregateInput = {
@@ -307,6 +326,7 @@ export type VideoProcessingJobCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type VideoProcessingJobMaxOrderByAggregateInput = {
@@ -316,6 +336,7 @@ export type VideoProcessingJobMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type VideoProcessingJobMinOrderByAggregateInput = {
@@ -325,6 +346,7 @@ export type VideoProcessingJobMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -348,6 +370,7 @@ export type VideoProcessingJobSelect<ExtArgs extends runtime.Types.Extensions.In
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  userId?: boolean
 }, ExtArgs["result"]["videoProcessingJob"]>
 
 export type VideoProcessingJobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -357,6 +380,7 @@ export type VideoProcessingJobSelectCreateManyAndReturn<ExtArgs extends runtime.
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  userId?: boolean
 }, ExtArgs["result"]["videoProcessingJob"]>
 
 export type VideoProcessingJobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -366,6 +390,7 @@ export type VideoProcessingJobSelectUpdateManyAndReturn<ExtArgs extends runtime.
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  userId?: boolean
 }, ExtArgs["result"]["videoProcessingJob"]>
 
 export type VideoProcessingJobSelectScalar = {
@@ -375,9 +400,10 @@ export type VideoProcessingJobSelectScalar = {
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  userId?: boolean
 }
 
-export type VideoProcessingJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "videoFile" | "processedFile" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["videoProcessingJob"]>
+export type VideoProcessingJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "videoFile" | "processedFile" | "status" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["videoProcessingJob"]>
 
 export type $VideoProcessingJobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "VideoProcessingJob"
@@ -389,6 +415,7 @@ export type $VideoProcessingJobPayload<ExtArgs extends runtime.Types.Extensions.
     status: string
     createdAt: Date
     updatedAt: Date
+    userId: string
   }, ExtArgs["result"]["videoProcessingJob"]>
   composites: {}
 }
@@ -818,6 +845,7 @@ export interface VideoProcessingJobFieldRefs {
   readonly status: Prisma.FieldRef<"VideoProcessingJob", 'String'>
   readonly createdAt: Prisma.FieldRef<"VideoProcessingJob", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"VideoProcessingJob", 'DateTime'>
+  readonly userId: Prisma.FieldRef<"VideoProcessingJob", 'String'>
 }
     
 
