@@ -1,13 +1,25 @@
-import { VideoProcessingJob } from '@api/application/entities/video-processing-job';
-import { FileManager } from '@file-manager';
-import { VideoProcessingJobResponse } from '../dtos/video-processing';
+import { VideoProcessingJob } from "@api/application/entities/video-processing-job";
+import { FileManager } from "@file-manager";
+import { VideoProcessingJobResponse } from "../dtos/video-processing";
 
 export class VideoProcessingView {
-  static async toHTTP(videoProcessingJob: VideoProcessingJob, fileManager: FileManager): Promise<VideoProcessingJobResponse> {
+  static async toHTTP(
+    videoProcessingJob: VideoProcessingJob,
+    fileManager: FileManager,
+  ): Promise<VideoProcessingJobResponse> {
+    const host = process.env.HOST || "http://localhost";
+    const port = process.env.API_PORT || "3000";
+    const baseUrl = `${host}:${port}`;
+
+    console.log(videoProcessingJob, videoProcessingJob.videoFile);
+
     return {
       id: videoProcessingJob.id,
-      videoFile: await fileManager.getFileUrl(videoProcessingJob.videoFile ?? '', process.env.HOST || 'http://localhost', process.env.API_PORT || '3000'),
-      status: videoProcessingJob.status
+      videoFile: await fileManager.getFileUrl(
+        videoProcessingJob.videoFile ?? "",
+        baseUrl,
+      ),
+      status: videoProcessingJob.status,
     };
   }
 }

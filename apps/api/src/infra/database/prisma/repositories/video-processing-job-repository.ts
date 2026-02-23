@@ -1,20 +1,22 @@
-import { VideoProcessingJob } from '@api/application/entities/video-processing-job';
-import { PrismaService } from '../prisma.service';
-import { Injectable } from '@nestjs/common';
-import { VideoProcessingJobRepository } from '@api/application/repositories/video-processing-job';
-import { PrismaVideoProcessingJobMapper } from '../mappers/prisma-processing-job-mapper';
+import { VideoProcessingJob } from "@api/application/entities/video-processing-job";
+import { PrismaService } from "../prisma.service";
+import { Injectable } from "@nestjs/common";
+import { VideoProcessingJobRepository } from "@api/application/repositories/video-processing-job";
+import { PrismaVideoProcessingJobMapper } from "../mappers/prisma-processing-job-mapper";
 
 @Injectable()
 export class PrismaVideoProcessingJobRepository implements VideoProcessingJobRepository {
   constructor(private prisma: PrismaService) {}
 
   async create(job: VideoProcessingJob) {
-    const createdVideoProcessingJob = await this.prisma.videoProcessingJob.create({
-      data: {
-        videoFile: job.videoFile,
-        status: job.status,
-      }
-    });
+    const createdVideoProcessingJob =
+      await this.prisma.videoProcessingJob.create({
+        data: {
+          videoFile: job.videoFile,
+          status: job.status,
+          userId: job.userId,
+        },
+      });
 
     return PrismaVideoProcessingJobMapper.toDomain(createdVideoProcessingJob);
   }
@@ -33,16 +35,31 @@ export class PrismaVideoProcessingJobRepository implements VideoProcessingJobRep
     return PrismaVideoProcessingJobMapper.toDomain(videoProcessingJob);
   }
 
-  async updateStatus(id: string, status: string): Promise<VideoProcessingJob> {
-    const updatedVideoProcessingJob = await this.prisma.videoProcessingJob.update({
+  async update(job: VideoProcessingJob): Promise<VideoProcessingJob> {
+    const updatedVideoProcessingJob =
+      await this.prisma.videoProcessingJob.update({
+        where: {
+          id: job.id,
+        },
+        data: {
+          status: job.status,
+          processedFile: job.processedFile,
+        },
+      });
+    return PrismaVideoProcessingJobMapper.toDomain(updatedVideoProcessingJob);
+  }
+
+  async findByUserId(userId: string): Promise<VideoProcessingJob[]> {
+    const videoProcessingJobs = await this.prisma.videoProcessingJob.findMany({
       where: {
-        id,
-      },
-      data: {
-        status,
+        userId,
       },
     });
 
-    return PrismaVideoProcessingJobMapper.toDomain(updatedVideoProcessingJob);
+    console.log(videoProcessingJobs);
+
+    return videoProcessingJobs.map((job) =>
+      PrismaVideoProcessingJobMapper.toDomain(job),
+    );
   }
 }

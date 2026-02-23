@@ -1,4 +1,4 @@
-services:  
+services:
   databasedev:
     image: postgres:17
     container_name: fiap-hack-db-dev
@@ -76,3 +76,16 @@ volumes:
   pgdatadev:
   prometheusdata:
   grafanadata:
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: fiap-hack-rustfs
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - rustfs_data:/data
+      - rustfs_logs:/logs
+volumes:
+  pgdatadev:
+  rustfs_data:
+  rustfs_logs:

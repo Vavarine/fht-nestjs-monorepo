@@ -23,20 +23,23 @@
       "@api/application/*": [
         "./apps/api/src/application/*"
       ],
+      "@api/prisma/*": [
+        "./apps/api/generated/prisma/*"
+      ],
       "@api/infra/*": [
         "./apps/api/src/infra/*"
       ],
       "@api/utils/*": [
         "./apps/api/src/utils/*"
       ],
-      "@worker/application/*": [
-        "./apps/worker/src/application/*"
+      "@video-processor/application/*": [
+        "./apps/video-processor/src/application/*"
       ],
-      "@worker/infra/*": [
-        "./apps/worker/src/infra/*"
+      "@video-processor/infra/*": [
+        "./apps/video-processor/src/infra/*"
       ],
-      "@worker/utils/*": [
-        "./apps/worker/src/utils/*"
+      "@video-processor/utils/*": [
+        "./apps/video-processor/src/utils/*"
       ],
       "@file-manager": [
         "./libs/file-manager/src/index.ts"

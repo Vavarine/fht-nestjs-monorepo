@@ -1,0 +1,38 @@
+mode:
+  standalone:
+    enabled: false
+  distributed:
+    enabled: true
+
+image:
+  repository: rustfs/rustfs
+  tag: latest
+
+secret:
+  rustfs:
+    access_key: rustfsadmin
+    secret_key: rustfsadmin
+
+storageclass:
+  name: local-path
+
+ingress:
+  className: traefik
+
+affinity:
+  podAntiAffinity:
+    enabled: false
+
+service:
+  type: NodePort
+  console:
+    port: 9001
+    nodePort: 30901
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"
