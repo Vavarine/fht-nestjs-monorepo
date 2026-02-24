@@ -1,0 +1,290 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: fiap-hack
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    rule_files:
+      - "recording_rules.yml"
+      - "alerting_rules.yml"
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: []
+
+    scrape_configs:
+      # Prometheus itself
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      # API service metrics
+      - job_name: 'api'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - fiap-hack
+        
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: api
+          - source_labels: [__meta_kubernetes_pod_ip]
+            action: replace
+            target_label: __address__
+            replacement: $1:3000
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: instance
+
+      # Video Processor service metrics
+      - job_name: 'video-processor'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - fiap-hack
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: video-processor
+          - source_labels: [__meta_kubernetes_pod_ip]
+            action: replace
+            target_label: __address__
+            replacement: $1:3000
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: instance
+
+      # RabbitMQ metrics
+      - job_name: 'rabbitmq'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - fiap-hack
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: rabbitmq
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+
+      # PostgreSQL metrics
+      - job_name: 'postgres'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - fiap-hack
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: postgres
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+
+  recording_rules.yml: |
+    groups:
+      - name: video_processing_rules
+        rules:
+          - record: video:processing_rate_5m
+            expr: rate(video_jobs_processed_total[5m])
+          
+          - record: video:error_rate_5m
+            expr: rate(video_jobs_failed_total[5m])
+          
+          - record: video:avg_processing_time_5m
+            expr: rate(video_processing_duration_seconds_sum[5m]) / rate(video_processing_duration_seconds_count[5m])
+
+      - name: api_rules
+        rules:
+          - record: api:request_rate_5m
+            expr: rate(http_requests_total[5m])
+          
+          - record: api:error_rate_5m
+            expr: rate(http_requests_total{status=~"4..|5.."}[5m])
+          
+          - record: api:response_time_95p
+            expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+  alerting_rules.yml: |
+    groups:
+      - name: video_processing_alerts
+        rules:
+          - alert: HighVideoProcessingFailureRate
+            expr: video:error_rate_5m > 0.1
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High video processing failure rate"
+              description: "Video processing failure rate is above 10% for more than 2 minutes"
+
+          - alert: VideoProcessingQueueBacklog
+            expr: rabbitmq_queue_messages{queue="video_processing"} > 100
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Video processing queue backlog"
+              description: "More than 100 videos in processing queue for 5 minutes"
+
+      - name: api_alerts
+        rules:
+          - alert: HighAPIErrorRate
+            expr: api:error_rate_5m > 0.05
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High API error rate"
+              description: "API error rate is above 5% for more than 2 minutes"
+
+          - alert: HighAPILatency
+            expr: api:response_time_95p > 2
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High API latency"
+              description: "95th percentile latency is above 2 seconds for 5 minutes"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: fiap-hack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: prometheus-service-account
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.45.0
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus'
+          - '--web.console.libraries=/etc/prometheus/console_libraries'
+          - '--web.console.templates=/etc/prometheus/consoles'
+          - '--storage.tsdb.retention.time=30d'
+          - '--web.enable-lifecycle'
+          - '--web.route-prefix=/'
+          - '--web.enable-admin-api'
+        ports:
+        - containerPort: 9090
+          name: prometheus
+        volumeMounts:
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus
+        - name: prometheus-storage
+          mountPath: /prometheus
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: prometheus-config-volume
+        configMap:
+          name: prometheus-config
+      - name: prometheus-storage
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  namespace: fiap-hack
+spec:
+  selector:
+    app: prometheus
+  type: NodePort
+  ports:
+  - name: prometheus
+    port: 9090
+    targetPort: 9090
+    nodePort: 30090
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-service-account
+  namespace: fiap-hack
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-cluster-role
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-cluster-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: prometheus-service-account
+  namespace: fiap-hack
