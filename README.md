@@ -2,41 +2,58 @@
 
 
 ## Rodando a Aplicação
-1. Instale as dependências:
 
+### 🚀 **Início Rápido (Recomendado)**
+
+1. Instale as dependências:
 ```bash
-   pnpm install
+pnpm install
 ```
 
-2. Inicie o ambiente de desenvolvimento com Docker (PostgreSQL e RabbitMQ):
+2. **Suba TODA a infraestrutura** (PostgreSQL + RabbitMQ + RustFS + Prometheus + Grafana):
 ```bash
-   pnpm docker:dev:up
+pnpm docker:dev:up
 ```
 
 3. Rode as migrations do banco:
 ```bash
-   pnpm prisma:dev:migrate
+pnpm prisma:dev:migrate
 ```
 
 4. Gere o client do Prisma:
 ```bash
-   pnpm prisma:dev:generate
+pnpm prisma:dev:generate
 ```
 
 5. Inicie a aplicação da API:
 ```bash
-   pnpm start:dev api
+pnpm start:dev api
 ```
 
 6. Inicie a aplicação video-processor:
 ```bash
-   pnpm start:dev video-processor
+pnpm start:dev video-processor
 ```
 
-Agora você pode acessar:
-- **API**: `http://localhost:3000` 
-- **Video Processor**: `http://localhost:3002`
-- **RabbitMQ Management**: `http://localhost:15672` (usuário e senha padrão: `guest`)
+**🎯 Pronto! Agora você pode acessar:**
+- **API**: http://localhost:3000
+- **Video Processor**: http://localhost:3001
+- **Grafana** (Dashboards): http://localhost:3002 (admin/admin123)
+- **Prometheus** (Métricas): http://localhost:9090
+- **RabbitMQ Management**: http://localhost:15672 (guest/guest)
+- **RustFS Console**: http://localhost:9001
+
+### 📊 **Comandos Docker Úteis**
+```bash
+# Ver logs em tempo real
+pnpm docker:dev:logs
+
+# Parar tudo
+pnpm docker:dev:down
+
+# Parar e limpar volumes (reset completo)
+pnpm docker:dev:clean
+```
 
 ## ✅ **Verificar se está funcionando**
 ```bash
@@ -47,84 +64,10 @@ curl http://localhost:3000/
 curl http://localhost:3000/metrics
 
 # Testar métricas do Video Processor
-curl http://localhost:3002/metrics
+curl http://localhost:3001/metrics
 ```
 
-## 🚀 **Desenvolvimento com Observabilidade (Docker)**
-
-Quer métricas no desenvolvimento local? Use este comando para subir **PostgreSQL + RabbitMQ + Prometheus + Grafana**:
-
-### **1. Subir infraestrutura + observabilidade:**
-```bash
-# ⚠️ IMPORTANTE: Pare outros ambientes antes
-pnpm docker:dev:down
-
-# Subir toda infraestrutura com observabilidade
-pnpm docker:observability:up
-
-# Verificar status
-docker compose -f docker-compose.observability.yaml ps
-
-# Ver logs (opcional)
-pnpm docker:observability:logs
-```
-
-**🚨 Conflito de portas?** Se der erro de "port already allocated":
-```bash
-# Verificar o que está usando as portas
-netstat -ano | findstr ":5432 :5672"
-
-# Parar PostgreSQL nativo (Windows)
-Get-Service -Name "*postgres*" | Stop-Service
-
-# Ou matar processo específico
-taskkill /PID <PID_NUMBER> /F
-```
-
-### **2. Rodar aplicações (nativas):**
-```bash
-# Migrations e client Prisma (usando porta 5433 do observability)
-pnpm observability:migrate
-pnpm observability:generate
-
-# Terminal 1: API com métricas
-pnpm observability:api
-
-# Terminal 2: Video Processor com métricas  
-pnpm observability:worker
-```
-
-**💡 Dica:** O ambiente observability usa PostgreSQL na **porta 5433** para evitar conflitos.
-
-### **3. Acessar serviços:**
-- **API**: `http://localhost:3000`
-- **Video Processor**: `http://localhost:3002`  
-- **🔥 Grafana**: `http://localhost:3001` (admin/admin123)
-- **📈 Prometheus**: `http://localhost:9090`
-- **🐰 RabbitMQ**: `http://localhost:15672`
-- **🗄️ PostgreSQL**: `localhost:5433` (porta diferente para evitar conflitos)
-
-### **4. Dashboards pré-configurados no Grafana:**
-- **📊 Video Processing System**: Jobs criados/processados, tempo médio
-- **🚀 API Performance**: Request rate, latência, erros por status code
-- **📈 Upload Success Rate**: Taxa de sucesso de uploads
-
-### **5. Para parar tudo:**
-```bash
-# Parar containers
-pnpm docker:observability:down
-
-# Parar containers + remover volumes (limpar dados)
-pnpm docker:observability:down && docker compose -f docker-compose.observability.yaml down -v
-```
-
-## ⚡ **3 Formas de rodar:**
-
-| Modo | Comando | Observabilidade | Características |
-|------|---------|----------------|-----------------|
-| **🔧 Docker Simples** | `pnpm docker:dev:up` | ❌ | Rápido, só infra |
-| **📊 Docker + Grafana** | `pnpm docker:observability:up` | ✅ | **Métricas em dev** |
-| **☸️ Kubernetes** | `./k8s/deploy.sh` | ✅ | Produção completa |
+---
 
 ## Rodando em Produção via Docker Compose
 Build da imagem da API:
