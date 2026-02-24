@@ -3,7 +3,6 @@ import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { Transport } from "@nestjs/microservices";
-import * as promClient from 'prom-client';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -11,16 +10,6 @@ async function bootstrap() {
       prefix: "vp", // Default is "Nest"
       breakLength: 10, // Default is 1000
     }),
-  });
-
-  // Configurar métricas Prometheus
-  const register = new promClient.Registry();
-  promClient.collectDefaultMetrics({ register });
-
-  // Endpoint /metrics
-  app.use('/metrics', async (req, res) => {
-    res.set('Content-Type', register.contentType);
-    res.end(await register.metrics());
   });
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
