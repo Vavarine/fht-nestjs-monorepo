@@ -1,0 +1,42 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Monitor Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Monitor FIAP Hack API (running on host)
+  - job_name: 'fiap-hack-api'
+    static_configs:
+      - targets: ['host.docker.internal:3000']
+    metrics_path: /metrics
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Monitor FIAP Hack Video Processor (running on host)  
+  - job_name: 'fiap-hack-video-processor'
+    static_configs:
+      - targets: ['host.docker.internal:3002']
+    metrics_path: /metrics
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Monitor Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+
+  # Monitor RabbitMQ Management (basic metrics)
+  # Note: For full Prometheus metrics, enable rabbitmq_prometheus plugin
+  - job_name: 'rabbitmq-management'
+    static_configs:
+      - targets: ['rabbitmq:15672']
+    scrape_interval: 30s
+    metrics_path: /api/metrics
