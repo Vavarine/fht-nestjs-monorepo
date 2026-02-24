@@ -24,8 +24,12 @@ spec:
     spec:
       containers:
       - name: api
-        image: vavarine/fiap-hack-api:latest
-        imagePullPolicy: Always
+        # Para desenvolvimento local: use imagem local com imagePullPolicy: Never
+        # Para produção/DockerHub: descomente as linhas abaixo
+        # image: vavarine/fiap-hack-api:latest
+        # imagePullPolicy: Always
+        image: fiap-hack-api:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 3000
           name: http

@@ -58,7 +58,7 @@ data:
           - source_labels: [__meta_kubernetes_pod_ip]
             action: replace
             target_label: __address__
-            replacement: $1:3000
+            replacement: $1:3001
           - source_labels: [__meta_kubernetes_pod_name]
             action: replace
             target_label: instance
