@@ -47,6 +47,7 @@ data:
         type: prometheus
         access: proxy
         orgId: 1
+        uid: prometheus
         url: http://prometheus-service:9090
         basicAuth: false
         isDefault: true
@@ -65,289 +66,24 @@ data:
     providers:
       - name: 'default'
         orgId: 1
-        folder: ''
+        folder: 'FIAP Hackathon'
+        folderUid: 'fiap'
         type: file
         disableDeletion: false
-        updateIntervalSeconds: 10
+        editable: true
+        updateIntervalSeconds: 30
         allowUiUpdates: true
         options:
           path: /var/lib/grafana/dashboards
 
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: grafana-dashboards
-  namespace: fiap-hack
-data:
-  video-processing-dashboard.json: |
-    {
-      "dashboard": {
-        "id": null,
-        "title": "Video Processing System",
-        "tags": ["video", "processing"],
-        "timezone": "browser",
-        "panels": [
-          {
-            "id": 1,
-            "title": "Video Jobs Created vs Processed",
-            "type": "stat",
-            "targets": [
-              {
-                "expr": "increase(video_jobs_created_total[1h])",
-                "legendFormat": "Created"
-              },
-              {
-                "expr": "increase(video_jobs_processed_total[1h])",
-                "legendFormat": "Processed"
-              }
-            ],
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "mode": "thresholds"
-                },
-                "thresholds": {
-                  "steps": [
-                    {"color": "green", "value": null}
-                  ]
-                }
-              }
-            },
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
-          },
-          {
-            "id": 2,
-            "title": "Processing Rate",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "rate(video_jobs_processed_total[5m])",
-                "legendFormat": "Jobs/sec"
-              }
-            ],
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
-          },
-          {
-            "id": 3,
-            "title": "Average Processing Time",
-            "type": "stat",
-            "targets": [
-              {
-                "expr": "video:avg_processing_time_5m",
-                "legendFormat": "Avg Time (seconds)"
-              }
-            ],
-            "fieldConfig": {
-              "defaults": {
-                "unit": "s"
-              }
-            },
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
-          },
-          {
-            "id": 4,
-            "title": "RabbitMQ Queue Size",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "rabbitmq_queue_messages{queue=\"video_processing\"}",
-                "legendFormat": "Queue Size"
-              }
-            ],
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
-          },
-          {
-            "id": 5,
-            "title": "Error Rate",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "rate(video_jobs_failed_total[5m])",
-                "legendFormat": "Errors/sec"
-              }
-            ],
-            "yAxes": [
-              {
-                "min": 0
-              }
-            ],
-            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
-          }
-        ],
-        "time": {
-          "from": "now-1h",
-          "to": "now"
-        },
-        "refresh": "30s"
-      }
-    }
-
-  api-dashboard.json: |
-    {
-      "dashboard": {
-        "id": null,
-        "title": "API Performance",
-        "tags": ["api", "http"],
-        "timezone": "browser",
-        "panels": [
-          {
-            "id": 1,
-            "title": "Request Rate",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "rate(http_requests_total[5m])",
-                "legendFormat": "Requests/sec"
-              }
-            ],
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
-          },
-          {
-            "id": 2,
-            "title": "Response Time (95th percentile)",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
-                "legendFormat": "95th percentile"
-              }
-            ],
-            "yAxes": [
-              {
-                "unit": "s"
-              }
-            ],
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
-          },
-          {
-            "id": 3,
-            "title": "Error Rate by Status Code",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "rate(http_requests_total{status=~\"4..\"}[5m])",
-                "legendFormat": "4xx Errors"
-              },
-              {
-                "expr": "rate(http_requests_total{status=~\"5..\"}[5m])",
-                "legendFormat": "5xx Errors"
-              }
-            ],
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
-          },
-          {
-            "id": 4,
-            "title": "Upload Success Rate",
-            "type": "stat",
-            "targets": [
-              {
-                "expr": "rate(video_uploads_successful_total[5m]) / rate(video_uploads_total[5m]) * 100",
-                "legendFormat": "Success Rate %"
-              }
-            ],
-            "fieldConfig": {
-              "defaults": {
-                "unit": "percent",
-                "thresholds": {
-                  "steps": [
-                    {"color": "red", "value": null},
-                    {"color": "yellow", "value": 90},
-                    {"color": "green", "value": 95}
-                  ]
-                }
-              }
-            },
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
-          }
-        ],
-        "time": {
-          "from": "now-1h",
-          "to": "now"
-        },
-        "refresh": "30s"
-      }
-    }
-
-  system-dashboard.json: |
-    {
-      "dashboard": {
-        "id": null,
-        "title": "System Resources",
-        "tags": ["system", "resources"],
-        "timezone": "browser",
-        "panels": [
-          {
-            "id": 1,
-            "title": "Pod CPU Usage",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "rate(container_cpu_usage_seconds_total{namespace=\"fiap-hack\"}[5m]) * 100",
-                "legendFormat": "{{ pod }}"
-              }
-            ],
-            "yAxes": [
-              {
-                "unit": "percent"
-              }
-            ],
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
-          },
-          {
-            "id": 2,
-            "title": "Pod Memory Usage",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "container_memory_usage_bytes{namespace=\"fiap-hack\"} / 1024 / 1024",
-                "legendFormat": "{{ pod }}"
-              }
-            ],
-            "yAxes": [
-              {
-                "unit": "MB"
-              }
-            ],
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
-          },
-          {
-            "id": 3,
-            "title": "Database Connections",
-            "type": "graph",
-            "targets": [
-              {
-                "expr": "postgres_connections_active",
-                "legendFormat": "Active Connections"
-              }
-            ],
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
-          },
-          {
-            "id": 4,
-            "title": "Storage Used",
-            "type": "stat",
-            "targets": [
-              {
-                "expr": "rustfs_bytes_stored / 1024 / 1024 / 1024",
-                "legendFormat": "GB Used"
-              }
-            ],
-            "fieldConfig": {
-              "defaults": {
-                "unit": "GB"
-              }
-            },
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
-          }
-        ],
-        "time": {
-          "from": "now-1h",
-          "to": "now"
-        },
-        "refresh": "30s"
-      }
-    }
+# NOTA: O ConfigMap dos dashboards deve ser criado manualmente a partir dos arquivos JSON originais:
+# kubectl create configmap grafana-dashboards \
+#   --from-file=docker/grafana/dashboards/api-performance-dashboard.json \
+#   --from-file=docker/grafana/dashboards/video-processing-dashboard.json \
+#   -n fiap-hack
+#
+# Isso garante que os dashboards são carregados corretamente no Grafana.
 
 ---
 apiVersion: apps/v1
@@ -387,7 +123,7 @@ spec:
         - name: grafana-dashboards
           mountPath: /var/lib/grafana/dashboards
         - name: grafana-storage
-          mountPath: /var/lib/grafana
+          mountPath: /var/lib/grafana/data
         resources:
           requests:
             memory: "256Mi"
