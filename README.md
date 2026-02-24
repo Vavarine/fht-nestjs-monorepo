@@ -106,7 +106,20 @@ Se a execução de script estiver bloqueada, dê permissão antes:
 chmod +x k8s/create-k3d-cluster.sh k8s/deploy.sh
 ```
 
-### 2. Faça o deploy de todos os recursos Kubernetes
+### 2. Build e import das imagens Docker (desenvolvimento local)
+```bash
+# Build das imagens
+docker build -t fiap-hack-api:latest -f docker/api.dockerfile .
+docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
+
+# Import para o k3d cluster
+./k3d.exe image import fiap-hack-api:latest fiap-hack-video-processor:latest -c fht-cluster
+```
+
+> **Nota**: Para produção com DockerHub, edite `k8s/api.yaml` e `k8s/video-processor.yaml` 
+> e use `vavarine/fiap-hack-api:latest` com `imagePullPolicy: Always` (veja comentários nos arquivos).
+
+### 3. Faça o deploy de todos os recursos Kubernetes
 ```bash
 ./k8s/deploy.sh
 ```
@@ -118,6 +131,14 @@ Se o Helm falhar no seu ambiente, você pode usar o modo manifesto (fallback):
 RUSTFS_DEPLOY_MODE=manifest ./k8s/deploy.sh
 ```
 
+**Importante:** Crie o ConfigMap dos dashboards do Grafana:
+```bash
+kubectl create configmap grafana-dashboards \
+  --from-file=docker/grafana/dashboards/api-performance-dashboard.json \
+  --from-file=docker/grafana/dashboards/video-processing-dashboard.json \
+  -n fiap-hack
+```
+
 Para depurar erro de Helm:
 ```bash
 helm repo add rustfs https://charts.rustfs.com --force-update
@@ -125,20 +146,18 @@ helm repo update
 helm search repo rustfs
 ```
 
-### 3. Valide os recursos
+### 4. Valide os recursos
 ```bash
 kubectl get pods -n fiap-hack
 kubectl get svc -n fiap-hack
 ```
 
-### 4. Acesse os serviços
+### 5. Acesse os serviços
 - API (NodePort): `http://localhost:30080`
 - Prometheus: `http://localhost:30090`
 - Grafana: `http://localhost:30030`
 - RustFS Console: `http://localhost:30901`
 - RabbitMQ Management: `http://localhost:31672`
-- **Prometheus: `http://localhost:30090`**
-- **Grafana: `http://localhost:30030` (usuário: admin, senha: admin123)**
 
 #### 🔍 **Observabilidade**
 O sistema inclui monitoramento completo com **Prometheus** e **Grafana**:
@@ -154,7 +173,7 @@ O sistema inclui monitoramento completo com **Prometheus** e **Grafana**:
 - Métricas de infraestrutura (RabbitMQ, PostgreSQL, recursos do sistema)
 - Métricas customizadas de negócio
 
-### 5. Comandos úteis de debug
+### 6. Comandos úteis de debug
 ```bash
 kubectl logs -n fiap-hack deployment/api -f
 kubectl logs -n fiap-hack deployment/video-processor -f
