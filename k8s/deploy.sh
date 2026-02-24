@@ -98,18 +98,30 @@ if ! kubectl wait --for=condition=complete job/rustfs-bootstrap-bucket -n "$NAME
 fi
 
 # Aplicações
-echo -e "${YELLOW}8. Deploying API...${NC}"
+echo -e "${YELLOW}8. Deploying Prometheus...${NC}"
+kubectl apply -f "$K8S_DIR/prometheus.yaml"
+
+echo -e "${YELLOW}9. Deploying Grafana...${NC}"
+kubectl apply -f "$K8S_DIR/grafana.yaml"
+
+echo -e "${YELLOW}⏳ Aguardando Prometheus ficar pronto...${NC}"
+kubectl wait --for=condition=ready pod -l app=prometheus -n "$NAMESPACE" --timeout=300s
+
+echo -e "${YELLOW}⏳ Aguardando Grafana ficar pronto...${NC}"
+kubectl wait --for=condition=ready pod -l app=grafana -n "$NAMESPACE" --timeout=300s
+
+echo -e "${YELLOW}10. Deploying API...${NC}"
 kubectl apply -f "$K8S_DIR/api.yaml"
 kubectl set image deployment/api api="$API_IMAGE" -n "$NAMESPACE"
 
-echo -e "${YELLOW}9. Deploying Video Processor...${NC}"
+echo -e "${YELLOW}11. Deploying Video Processor...${NC}"
 kubectl delete deployment video-processor -n "$NAMESPACE" --ignore-not-found=true
 kubectl delete hpa video-processor-hpa -n "$NAMESPACE" --ignore-not-found=true
 kubectl apply -f "$K8S_DIR/video-processor.yaml"
 kubectl set image deployment/video-processor video-processor="$VIDEO_PROCESSOR_IMAGE" -n "$NAMESPACE"
 
 # Ingress (optional)
-echo -e "${YELLOW}10. Deploying Ingress...${NC}"
+echo -e "${YELLOW}12. Deploying Ingress...${NC}"
 kubectl apply -f "$K8S_DIR/ingress.yaml" || echo -e "${YELLOW}⚠️  Ingress pode não estar disponível${NC}"
 
 echo -e "${GREEN}✅ Deploy concluído!${NC}"
@@ -134,5 +146,7 @@ kubectl get pvc -n "$NAMESPACE"
 echo "Acesso API (NodePort):      http://localhost:30080"
 echo "RustFS Console:             http://localhost:30901"
 echo "RabbitMQ Management:        http://localhost:31672"
+echo "Prometheus:                 http://localhost:30090"
+echo "Grafana:                    http://localhost:30030 (admin/admin123)"
 echo "Acesso Ingress HTTP:        http://localhost:8080"
 echo "Acesso Ingress HTTPS:       https://localhost:8443"
