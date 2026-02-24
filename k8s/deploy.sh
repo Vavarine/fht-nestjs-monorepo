@@ -104,6 +104,13 @@ kubectl apply -f "$K8S_DIR/prometheus.yaml"
 echo -e "${YELLOW}9. Deploying Grafana...${NC}"
 kubectl apply -f "$K8S_DIR/grafana.yaml"
 
+echo -e "${YELLOW}9.1. Criando ConfigMap dos dashboards do Grafana...${NC}"
+kubectl delete configmap grafana-dashboards -n "$NAMESPACE" --ignore-not-found=true
+kubectl create configmap grafana-dashboards \
+  --from-file="$K8S_DIR/../docker/grafana/dashboards/api-performance-dashboard.json" \
+  --from-file="$K8S_DIR/../docker/grafana/dashboards/video-processing-dashboard.json" \
+  -n "$NAMESPACE"
+
 echo -e "${YELLOW}⏳ Aguardando Prometheus ficar pronto...${NC}"
 kubectl wait --for=condition=ready pod -l app=prometheus -n "$NAMESPACE" --timeout=300s
 
