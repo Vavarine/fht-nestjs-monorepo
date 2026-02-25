@@ -33,6 +33,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/video-processor/tsconfig.app.json"
       }
+    },
+    "user-notifier": {
+      "type": "application",
+      "root": "apps/user-notifier",
+      "entryFile": "main",
+      "sourceRoot": "apps/user-notifier/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/user-notifier/tsconfig.app.json"
+      }
     }
   }
 }

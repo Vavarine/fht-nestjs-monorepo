@@ -33,6 +33,11 @@
    pnpm start:dev video-processor
 ```
 
+7. Inicie a aplicação de notificações:
+```bash
+   pnpm start:dev user-notifier
+```
+
 Agora você pode acessar a API em `http://localhost:3000` e a interface de gerenciamento do RabbitMQ em `http://localhost:15672` (usuário e senha padrão: `guest`).
 
 ## Rodando em Produção via Docker Compose
