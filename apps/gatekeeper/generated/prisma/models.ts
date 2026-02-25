@@ -8,5 +8,5 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/VideoProcessingJob'
+export type * from './models/Customer'
 export type * from './commonInputTypes'

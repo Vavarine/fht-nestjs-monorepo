@@ -51,7 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  VideoProcessingJob: 'VideoProcessingJob'
+  Customer: 'Customer'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -70,17 +70,15 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const VideoProcessingJobScalarFieldEnum = {
+export const CustomerScalarFieldEnum = {
   id: 'id',
-  videoFile: 'videoFile',
-  processedFile: 'processedFile',
-  status: 'status',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId'
+  cpf: 'cpf',
+  name: 'name',
+  email: 'email',
+  createdAt: 'createdAt'
 } as const
 
-export type VideoProcessingJobScalarFieldEnum = (typeof VideoProcessingJobScalarFieldEnum)[keyof typeof VideoProcessingJobScalarFieldEnum]
+export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
 
 
 export const SortOrder = {

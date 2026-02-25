@@ -1,44 +1,53 @@
-import { ValidationPipe } from "@nestjs/common";
+import { ConsoleLogger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
-import { writeFileSync } from "node:fs";
+import { Transport } from "@nestjs/microservices";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      prefix: "gatekeeper", // Default is "Nest"
+      breakLength: 10, // Default is 1000
+    }),
+  });
 
   const config = new DocumentBuilder()
-    .setTitle("PosTech Challange API")
-    .setDescription(
-      "Este é um projeto desenvolvido para o **FIAP Tech Challenge**, com foco em demonstrar a aplicação dos princípios da **Clean Architecture**. A proposta é apresentar uma estrutura de código modular, desacoplada e de fácil manutenção, usando tecnologias modernas e boas práticas de desenvolvimento.",
-    )
+    .setTitle("FIAP Hackathon Gatekeeper API")
+    .setDescription("Authentication API for FIAP Hackathon")
     .setVersion("1.5")
-    .setBasePath("/")
     .addBearerAuth(
       {
         type: "http",
         scheme: "bearer",
         bearerFormat: "JWT",
-        description: "Token JWT (opcional)",
+        description: "JWT Token (optional)",
       },
       "jwt",
     )
     .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("/customers/api", app, documentFactory);
+  // app.connectMicroservice({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: [process.env.RABBITMQ_URL || "amqp://localhost:5672"],
+  //     queue:
+  //       process.env.VIDEO_PROCESSING_SERVICE_UPDATE_QUEUE ||
+  //       "video_update_queue",
+  //     noAck: false,
+  //     queueOptions: {
+  //       durable: true,
+  //     },
+  //   },
+  // });
 
-  if (process.env.ENV === "development") {
-    // Generate and save the Swagger JSON document to a file
-    writeFileSync(
-      "./docs/swagger.json",
-      JSON.stringify(documentFactory(), null, 2),
-    );
-  }
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("", app, documentFactory);
 
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(3000);
+  await app.startAllMicroservices();
+  await app.listen(process.env.GATEKEEPER_PORT || 3002);
 }
 
 bootstrap();

@@ -8,12 +8,10 @@ generator client {
   moduleFormat = "cjs"
 }
 
-model VideoProcessingJob {
-  id            String   @id @default(uuid())
-  videoFile     String?
-  processedFile String?
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  userId        String
+model Customer {
+  id        String   @id // Cognito sub (UUID v4)
+  cpf       String   @unique
+  name      String
+  email     String?
+  createdAt DateTime @default(now())
 }

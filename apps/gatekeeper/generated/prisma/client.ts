@@ -27,8 +27,8 @@ export * from "./enums"
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more VideoProcessingJobs
- * const videoProcessingJobs = await prisma.videoProcessingJob.findMany()
+ * // Fetch zero or more Customers
+ * const customers = await prisma.customer.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -38,7 +38,7 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model VideoProcessingJob
+ * Model Customer
  * 
  */
-export type VideoProcessingJob = Prisma.VideoProcessingJobModel
+export type Customer = Prisma.CustomerModel
