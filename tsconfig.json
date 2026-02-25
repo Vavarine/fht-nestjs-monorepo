@@ -41,6 +41,21 @@
       "@video-processor/utils/*": [
         "./apps/video-processor/src/utils/*"
       ],
+      "@gatekeeper/application/*": [
+        "./apps/gatekeeper/src/application/*"
+      ],
+      "@gatekeeper/helpers/*": [
+        "./apps/gatekeeper/src/helpers/*"
+      ],
+      "@gatekeeper/infra/*": [
+        "./apps/gatekeeper/src/infra/*"
+      ],
+      "@gatekeeper/application/utils/*": [
+        "./apps/gatekeeper/src/utils/*"
+      ],
+      "@gatekeeper/prisma/*": [
+        "./apps/gatekeeper/generated/prisma/*"
+      ],
       "@file-manager": [
         "./libs/file-manager/src/index.ts"
       ],

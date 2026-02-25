@@ -11,6 +11,18 @@ services:
       - ${POSTGRES_PORT}:5432
     volumes:
       - pgdatadev:/var/lib/postgresql/data
+  databaseuserdev:
+    image: postgres:17
+    container_name: fiap-hack-db-user-dev
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+      - POSTGRES_GATEKEEPER_PORT
+    ports:
+      - ${POSTGRES_GATEKEEPER_PORT}:5433
+    volumes:
+      - pgdatauserdev:/var/lib/postgresql-user/data
   rabbitmqdev:
     image: rabbitmq:4-management
     container_name: fiap-hack-rabbitmq-dev
@@ -35,7 +47,16 @@ services:
     volumes:
       - rustfs_data:/data
       - rustfs_logs:/logs
+  local-cognito: 
+    image: jagregory/cognito-local:latest
+    container_name: cognito-local
+    ports:
+      - "9229:9229"
+    volumes:
+      - /app/.cognito 
 volumes:
   pgdatadev:
   rustfs_data:
   rustfs_logs:
+  local-cognito:
+  pgdatauserdev:
