@@ -72,12 +72,12 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "increase(video_jobs_created_total[1h])",
+          "expr": "sum(increase(video_jobs_created_total[1h]))",
           "legendFormat": "Jobs Created (1h)",
           "refId": "A"
         },
         {
-          "expr": "increase(video_jobs_processed_total[1h])",
+          "expr": "sum(increase(video_jobs_processed_total[1h]))",
           "legendFormat": "Jobs Processed (1h)",
           "refId": "B"
         }
@@ -158,12 +158,12 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "rate(video_jobs_processed_total[5m])",
+          "expr": "sum(rate(video_jobs_processed_total[5m]))",
           "legendFormat": "Video Processing Rate",
           "refId": "A"
         },
         {
-          "expr": "rate(video_jobs_created_total[5m])",
+          "expr": "sum(rate(video_jobs_created_total[5m]))",
           "legendFormat": "Video Creation Rate",
           "refId": "B"
         }
@@ -227,7 +227,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "rate(video_processing_duration_seconds_sum[5m]) / rate(video_processing_duration_seconds_count[5m])",
+          "expr": "sum(rate(video_processing_duration_seconds_sum[5m])) / sum(rate(video_processing_duration_seconds_count[5m]))",
           "legendFormat": "Avg Processing Time",
           "refId": "A"
         }
@@ -307,7 +307,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "rate(video_jobs_failed_total[5m])",
+          "expr": "sum(rate(video_jobs_failed_total[5m]))",
           "legendFormat": "Errors/sec",
           "refId": "A"
         }

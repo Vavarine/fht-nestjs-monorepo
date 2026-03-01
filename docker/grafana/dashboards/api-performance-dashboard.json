@@ -98,7 +98,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "rate(http_requests_total{job=\"fiap-hack-api\"}[5m])",
+          "expr": "sum by (method, route) (rate(http_requests_total{job=\"api\"}[5m]))",
           "legendFormat": "{{ method }} {{ route }}",
           "refId": "A"
         }
@@ -179,12 +179,12 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"fiap-hack-api\"}[5m]))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"api\"}[5m])))",
           "legendFormat": "95th percentile",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"fiap-hack-api\"}[5m]))",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"api\"}[5m])))",
           "legendFormat": "50th percentile",
           "refId": "B"
         }
@@ -265,12 +265,12 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "rate(http_requests_total{job=\"fiap-hack-api\",status=~\"4..\"}[5m])",
+          "expr": "sum(rate(http_requests_total{job=\"api\",status=~\"4..\"}[5m]))",
           "legendFormat": "4xx Errors",
           "refId": "A"
         },
         {
-          "expr": "rate(http_requests_total{job=\"fiap-hack-api\",status=~\"5..\"}[5m])",
+          "expr": "sum(rate(http_requests_total{job=\"api\",status=~\"5..\"}[5m]))",
           "legendFormat": "5xx Errors", 
           "refId": "B"
         }
@@ -334,7 +334,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "(rate(video_uploads_successful_total[5m]) / rate(video_uploads_total[5m])) * 100",
+          "expr": "(sum(rate(video_uploads_successful_total[5m])) / sum(rate(video_uploads_total[5m]))) * 100",
           "legendFormat": "Upload Success Rate",
           "refId": "A"
         }
