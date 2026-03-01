@@ -227,7 +227,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "sum(rate(video_processing_duration_seconds_sum[5m])) / sum(rate(video_processing_duration_seconds_count[5m]))",
+          "expr": "(sum(rate(video_processing_duration_seconds_sum[5m])) or 0) / (sum(rate(video_processing_duration_seconds_count[5m])) or 1)",
           "legendFormat": "Avg Processing Time",
           "refId": "A"
         }
