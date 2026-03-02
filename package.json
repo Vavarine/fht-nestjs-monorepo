@@ -33,9 +33,7 @@
     "observability:api": "dotenv -e .env.observability -- nest start --watch api",
     "observability:worker": "dotenv -e .env.observability -- nest start --watch video-processor",
     "start:migrate:prod": "prisma migrate deploy && pnpm run start",
-    "loadtest:k6": "k6 run k6/api-load.ts",
-    "loadtest:k6:docker": "docker run --rm --network host -v ${PWD}/k6:/scripts -e BASE_URL=http://localhost:30080 grafana/k6 run /scripts/api-load.ts",
-    "loadtest:k6:docker:win": "docker run --rm --network host -v C:/Users/laurasouza/Documents/fht-nestjs-monorepo/k6:/scripts -e BASE_URL=http://localhost:30080 grafana/k6 run /scripts/api-load.ts"
+    "loadtest:k6": "k6 run k6/api-load.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.982.0",
