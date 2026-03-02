@@ -8,7 +8,14 @@ const config: Config = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['src/application/entities/**/*.(t|j)s', 'src/application/use-cases/**/*.(t|j)s'],
+  collectCoverageFrom: [
+    'apps/api/src/application/entities/**/*.ts',
+    'apps/api/src/application/use-cases/**/*.ts',
+    'apps/video-processor/src/application/use-cases/**/*.ts',
+    '!**/*.spec.ts',
+    '!**/*.mock.ts',
+    '!**/test/**',
+  ],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
 

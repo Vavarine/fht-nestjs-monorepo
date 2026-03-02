@@ -1,129 +1,149 @@
-import { InMemoryCartsRepository } from '@test/repositories/in-memory-carts-repository';
-import { Customer } from '@api/application/entities/customer';
-import { Cart } from '@api/application/entities/carts';
-import { CustomerNotFound } from '../../errors/customer-error';
-import { CreateCart } from './create';
-import { InMemoryCustomersRepository } from '@test/repositories/in-memory-cutomers-repository';
+import { InMemoryVideoProcessingJobRepository } from '@test/repositories/in-memory-video-processing-job-repository';
+import { FileManagerMock } from '@test/mocks/file-manager.mock';
+import { VideoProcessingPublisherJobMock } from '@test/mocks/video-processing-publisher.mock';
+import { CreateVideoProcessingJob } from './create';
+import { VideoProcessingJob, VideoProcessingJobStatus } from '@api/application/entities/video-processing-job';
 
-describe('CreateCart', () => {
-    let createCart: CreateCart;
-    let cartsRepository: InMemoryCartsRepository;
-    let customerRepository: InMemoryCustomersRepository;
+describe('CreateVideoProcessingJob', () => {
+    let createVideoProcessingJob: CreateVideoProcessingJob;
+    let videoProcessingJobRepository: InMemoryVideoProcessingJobRepository;
+    let fileManager: FileManagerMock;
+    let videoProcessingPublisher: VideoProcessingPublisherJobMock;
 
     beforeEach(() => {
-        cartsRepository = new InMemoryCartsRepository();
-        customerRepository = new InMemoryCustomersRepository();
-        createCart = new CreateCart(cartsRepository);
+        videoProcessingJobRepository = new InMemoryVideoProcessingJobRepository();
+        fileManager = new FileManagerMock();
+        videoProcessingPublisher = new VideoProcessingPublisherJobMock();
+        createVideoProcessingJob = new CreateVideoProcessingJob(
+            videoProcessingJobRepository,
+            fileManager as any,
+            videoProcessingPublisher as any,
+        );
     });
 
-    describe('when customerId is provided (from Lambda/Cognito)', () => {
-        it('should create a cart with the provided customerId', async () => {
-            const cognitoCustomerId = 'cognito-sub-12345';
-            const request = { customerId: cognitoCustomerId };
-            const response = await createCart.execute(request);
-
-            expect(response).toHaveProperty('cart');
-            expect(response.cart).toBeInstanceOf(Cart);
-            expect(response.cart.customerId).toBe(cognitoCustomerId);
-            expect(response.cart.items).toEqual([]);
-
-            const savedCart = await cartsRepository.findById(response.cart.id);
-            expect(savedCart).not.toBeNull();
-            expect(savedCart?.customerId).toBe(cognitoCustomerId);
-            expect(savedCart?.items).toEqual([]);
-        });
-
-        it('should use customerId even when CPF is also provided', async () => {
-            const cognitoCustomerId = 'cognito-sub-67890';
-            const request = { cpf: '12345678901', customerId: cognitoCustomerId };
-            const response = await createCart.execute(request);
-
-            expect(response.cart.customerId).toBe(cognitoCustomerId);
-            expect(response.cart.items).toEqual([]);
-        });
-
-        it('should create multiple carts with different customerId', async () => {
-            const customerId1 = 'cognito-sub-111';
-            const customerId2 = 'cognito-sub-222';
-
-            const response1 = await createCart.execute({ customerId: customerId1 });
-            const response2 = await createCart.execute({ customerId: customerId2 });
-
-            expect(response1.cart.id).not.toBe(response2.cart.id);
-            expect(response1.cart.customerId).toBe(customerId1);
-            expect(response2.cart.customerId).toBe(customerId2);
-        });
-    });
-
-    describe('when no customerId is provided (anonymous cart)', () => {
-        it('should create an anonymous cart', async () => {
+    describe('video processing job creation', () => {
+        it('should create a video processing job with PENDING status', async () => {
+            const buffer = Buffer.from('test video content');
             const request = {
-                customerId: null
+                buffer,
+                originalFileName: 'test-video.mp4',
+                mimeType: 'video/mp4',
+                userId: 'user-123',
             };
-            const response = await createCart.execute(request);
 
-            expect(response).toHaveProperty('cart');
-            expect(response.cart).toBeInstanceOf(Cart);
-            expect(response.cart.customerId).toBeUndefined();
-            expect(response.cart.items).toEqual([]);
+            const response = await createVideoProcessingJob.execute(request);
 
-            const savedCart = await cartsRepository.findById(response.cart.id);
-            expect(savedCart).not.toBeNull();
-            expect(savedCart?.customerId).toBeUndefined();
-            expect(savedCart?.items).toEqual([]);
+            expect(response).toHaveProperty('videoProcessingJob');
+            expect(response.videoProcessingJob).toBeInstanceOf(VideoProcessingJob);
+            expect(response.videoProcessingJob.status).toBe(VideoProcessingJobStatus.PENDING);
+            expect(response.videoProcessingJob.userId).toBe('user-123');
+            expect(response.videoProcessingJob.videoFile).toBeTruthy();
         });
 
-        it('should create anonymous cart when customerId is empty string', async () => {
-            const request = { customerId: '' };
-            const response = await createCart.execute(request);
-            expect(response.cart.customerId).toBeUndefined();
-            expect(response.cart.items).toEqual([]);
+        it('should save the video file using FileManager', async () => {
+            const buffer = Buffer.from('test video content');
+            const request = {
+                buffer,
+                originalFileName: 'test-video.mp4',
+                mimeType: 'video/mp4',
+                userId: 'user-123',
+            };
+
+            await createVideoProcessingJob.execute(request);
+
+            expect(fileManager.savedFiles.size).toBe(1);
+            const savedFileName = Array.from(fileManager.savedFiles.keys())[0];
+            expect(savedFileName).toContain('test-video.mp4');
         });
 
-        it('should create anonymous cart when customerId is undefined', async () => {
-            const request = { customerId: null };
-            const response = await createCart.execute(request);
-            expect(response.cart.customerId).toBeUndefined();
-            expect(response.cart.items).toEqual([]);
-        });
-    });
+        it('should store the job in the repository', async () => {
+            const buffer = Buffer.from('test video content');
+            const request = {
+                buffer,
+                originalFileName: 'test-video.mp4',
+                mimeType: 'video/mp4',
+                userId: 'user-123',
+            };
 
-    describe('cart creation', () => {
-        it('should create multiple carts with different IDs', async () => {
-            const customerId1 = 'cognito-sub-aaa';
-            const customerId2 = 'cognito-sub-bbb';
+            const response = await createVideoProcessingJob.execute(request);
 
-            const response1 = await createCart.execute({ customerId: customerId1 });
-            const response2 = await createCart.execute({ customerId: customerId2 });
-            const response3 = await createCart.execute({ customerId: null });
-
-            expect(response1.cart.id).not.toBe(response2.cart.id);
-            expect(response1.cart.id).not.toBe(response3.cart.id);
-            expect(response2.cart.id).not.toBe(response3.cart.id);
-
-            expect(response1.cart.customerId).toBe(customerId1);
-            expect(response2.cart.customerId).toBe(customerId2);
-            expect(response3.cart.customerId).toBeUndefined();
+            const savedJob = await videoProcessingJobRepository.findById(response.videoProcessingJob.id);
+            expect(savedJob).not.toBeNull();
+            expect(savedJob?.id).toBe(response.videoProcessingJob.id);
+            expect(savedJob?.status).toBe(VideoProcessingJobStatus.PENDING);
         });
 
-        it('should initialize cart with empty items array', async () => {
-            const customerId = 'cognito-sub-ccc';
-            const response = await createCart.execute({ customerId });
+        it('should publish a message to the video processing queue', async () => {
+            const buffer = Buffer.from('test video content');
+            const request = {
+                buffer,
+                originalFileName: 'test-video.mp4',
+                mimeType: 'video/mp4',
+                userId: 'user-123',
+            };
+
+            const response = await createVideoProcessingJob.execute(request);
+
+            expect(videoProcessingPublisher.publishedMessages.length).toBe(1);
+            const publishedMessage = videoProcessingPublisher.getLastPublishedMessage();
+            expect(publishedMessage?.jobId).toBe(response.videoProcessingJob.id);
+            expect(publishedMessage?.videoFile).toBe(response.videoProcessingJob.videoFile);
+        });
+
+        it('should throw error if video file was not saved correctly', async () => {
+            // Mock fileManager to return empty string
+            fileManager.save = jest.fn().mockResolvedValue('');
             
-            expect(response.cart.items).toEqual([]);
-            expect(Array.isArray(response.cart.items)).toBe(true);
-            expect(response.cart.items.length).toBe(0);
+            const buffer = Buffer.from('test video content');
+            const request = {
+                buffer,
+                originalFileName: 'test-video.mp4',
+                mimeType: 'video/mp4',
+                userId: 'user-123',
+            };
+
+            await expect(createVideoProcessingJob.execute(request)).rejects.toThrow('Video file was not saved correctly');
         });
 
-        it('should handle anonymous cart creation', async () => {
-            const response = await createCart.execute({ customerId: null });
-            
-            expect(response.cart.customerId).toBeUndefined();
-            expect(response.cart.items).toEqual([]);
+        it('should create multiple jobs with different IDs', async () => {
+            const buffer = Buffer.from('test video content');
+            const request1 = {
+                buffer,
+                originalFileName: 'video1.mp4',
+                mimeType: 'video/mp4',
+                userId: 'user-123',
+            };
+            const request2 = {
+                buffer,
+                originalFileName: 'video2.mp4',
+                mimeType: 'video/mp4',
+                userId: 'user-456',
+            };
 
-            const savedCart = await cartsRepository.findById(response.cart.id);
-            expect(savedCart).not.toBeNull();
-            expect(savedCart?.customerId).toBeUndefined();
+            const response1 = await createVideoProcessingJob.execute(request1);
+            const response2 = await createVideoProcessingJob.execute(request2);
+
+            expect(response1.videoProcessingJob.id).not.toBe(response2.videoProcessingJob.id);
+            expect(response1.videoProcessingJob.userId).toBe('user-123');
+            expect(response2.videoProcessingJob.userId).toBe('user-456');
+        });
+
+        it('should associate the correct userId with the job', async () => {
+            const buffer = Buffer.from('test video content');
+            const userId = 'cognito-sub-12345';
+            const request = {
+                buffer,
+                originalFileName: 'test-video.mp4',
+                mimeType: 'video/mp4',
+                userId,
+            };
+
+            const response = await createVideoProcessingJob.execute(request);
+
+            expect(response.videoProcessingJob.userId).toBe(userId);
+            
+            const savedJob = await videoProcessingJobRepository.findById(response.videoProcessingJob.id);
+            expect(savedJob?.userId).toBe(userId);
         });
     });
 });

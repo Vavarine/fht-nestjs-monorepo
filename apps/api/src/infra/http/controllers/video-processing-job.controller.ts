@@ -4,7 +4,6 @@ import {
   Body,
   Controller,
   MaxFileSizeValidator,
-  FileTypeValidator,
   ParseFilePipe,
   Post,
   UploadedFile,
@@ -25,6 +24,7 @@ import { Ctx, MessagePattern, Payload } from "@nestjs/microservices";
 import { UpdateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/update";
 import { ListVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/list";
 import { MetricsService } from "../../metrics/metrics.service";
+import { VideoFileTypeValidator } from "../validators/video-file-type.validator";
 
 @Controller("video-processing-jobs")
 @ApiBearerAuth("jwt")
@@ -53,7 +53,7 @@ export class VideoProcessingJobsController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 20 * 1024 * 1024 }), // 20MB
-          new FileTypeValidator({ fileType: "video/*" }),
+          new VideoFileTypeValidator({ fileType: /^video\// }), // Aceita qualquer tipo de video (video/mp4, video/avi, etc.)
         ],
       }),
     )

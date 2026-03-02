@@ -154,6 +154,47 @@ kubectl logs -n fiap-hack deployment/video-processor -f
 kubectl get events -n fiap-hack --sort-by='.lastTimestamp'
 ```
 
+## 🧪 Executando Testes
+
+O projeto possui uma suíte completa de testes unitários para os use cases.
+
+### Testes Unitários
+
+#### Executar todos os testes
+```bash
+pnpm test
+```
+
+#### Executar testes com coverage
+```bash
+pnpm test:cov
+```
+
+#### Executar testes em modo watch (desenvolvimento)
+```bash
+pnpm test:watch
+```
+
+### Testes E2E (End-to-End)
+
+#### Testes E2E com mocks (rápido, sem infraestrutura)
+```bash
+pnpm test:e2e
+```
+
+#### Testes E2E completos (requer infraestrutura)
+```bash
+# 1. Subir toda a infraestrutura
+pnpm docker:dev:up
+
+# 2. Executar testes E2E completos
+pnpm test:e2e:full
+```
+
+#### Testes E2E com coverage
+```bash
+pnpm test:e2e:cov
+```
 ## Teste de carga com k6
 
 O projeto possui um script de carga em `k6/api-load.ts` para o endpoint:
