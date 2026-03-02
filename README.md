@@ -66,7 +66,6 @@ curl http://localhost:3000/metrics
 # Testar métricas do Video Processor
 curl http://localhost:3001/metrics
 ```
-
 ---
 
 ## Rodando em Produção via Docker Compose
@@ -116,9 +115,6 @@ docker build -t fiap-hack-video-processor:latest -f docker/video-processor.docke
 ./k3d.exe image import fiap-hack-api:latest fiap-hack-video-processor:latest -c fht-cluster
 ```
 
-> **Nota**: Para produção com DockerHub, edite `k8s/api.yaml` e `k8s/video-processor.yaml` 
-> e use `vavarine/fiap-hack-api:latest` com `imagePullPolicy: Always` (veja comentários nos arquivos).
-
 ### 3. Faça o deploy de todos os recursos Kubernetes
 ```bash
 ./k8s/deploy.sh
@@ -129,14 +125,6 @@ Observação: o RustFS é instalado via Helm (`rustfs/rustfs`) usando o arquivo 
 Se o Helm falhar no seu ambiente, você pode usar o modo manifesto (fallback):
 ```bash
 RUSTFS_DEPLOY_MODE=manifest ./k8s/deploy.sh
-```
-
-**Importante:** Crie o ConfigMap dos dashboards do Grafana:
-```bash
-kubectl create configmap grafana-dashboards \
-  --from-file=docker/grafana/dashboards/api-performance-dashboard.json \
-  --from-file=docker/grafana/dashboards/video-processing-dashboard.json \
-  -n fiap-hack
 ```
 
 Para depurar erro de Helm:
@@ -153,25 +141,11 @@ kubectl get svc -n fiap-hack
 ```
 
 ### 5. Acesse os serviços
-- API (NodePort): `http://localhost:30080`
-- Prometheus: `http://localhost:30090`
-- Grafana: `http://localhost:30030`
-- RustFS Console: `http://localhost:30901`
-- RabbitMQ Management: `http://localhost:31672`
-
-#### 🔍 **Observabilidade**
-O sistema inclui monitoramento completo com **Prometheus** e **Grafana**:
-
-**Dashboards disponíveis no Grafana:**
-- **Video Processing System**: Métricas de jobs de vídeo (criados vs processados, tempo de processamento, taxa de erro)
-- **API Performance**: Latência, rate de requests, códigos de status HTTP
-- **System Resources**: CPU, memória dos pods, conexões do banco, storage utilizado
-
-**Métricas coletadas:**
-- Métricas HTTP (latência, throughput, erros)
-- Métricas de processamento de vídeos (duração, sucesso/falha)
-- Métricas de infraestrutura (RabbitMQ, PostgreSQL, recursos do sistema)
-- Métricas customizadas de negócio
+- **API** (NodePort): http://localhost:30080
+- **Grafana** (Dashboards): http://localhost:30030 (admin/admin123)
+- **Prometheus** (Métricas): http://localhost:30090
+- **RustFS Console**: http://localhost:30901
+- **RabbitMQ Management**: http://localhost:31672 (guest/guest)
 
 ### 6. Comandos úteis de debug
 ```bash
@@ -220,8 +194,7 @@ AUTH_TOKEN=<seu_token_jwt> pnpm loadtest:k6
 - [x] Implementar sistema de arquivos compartilhado (Volumes Docker)
 - [x] Implementar sistema de arquivos S3 Like subido pelo docker
 - [x] Implementa o k8s
-
-- [x] **Observabilidade (Prometheus Grafana)** ✨
+- [x] Observabilidade (Prometheus Grafana)
 - [ ] Worker de notificacões
 
 - [ ] Usuários Login Senha (Subir cognito like servico? Fazer internamente?)
