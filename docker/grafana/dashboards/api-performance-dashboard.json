@@ -179,12 +179,12 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"api\"}[5m]))) or 0",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"api\"}[5m])))",
           "legendFormat": "95th percentile",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"api\"}[5m]))) or 0",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"api\"}[5m])))",
           "legendFormat": "50th percentile",
           "refId": "B"
         }
@@ -334,7 +334,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "((sum(rate(video_uploads_successful_total[5m])) or 0) / (sum(rate(video_uploads_total[5m])) or 1)) * 100",
+          "expr": "(sum(rate(video_uploads_successful_total[5m])) / sum(rate(video_uploads_total[5m]))) * 100",
           "legendFormat": "Upload Success Rate",
           "refId": "A"
         }
