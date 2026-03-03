@@ -2,6 +2,7 @@ import {
   VideoProcessingJob,
   VideoProcessingJobStatus,
 } from "@api/application/entities/video-processing-job";
+import { UserNotifierPublisher } from "@api/application/publishers/user-notifier.publisher";
 import { VideoProcessingJobRepository } from "@api/application/repositories/video-processing-job";
 import { Injectable } from "@nestjs/common";
 
@@ -19,6 +20,7 @@ interface UpdateVideoProcessingJobResponse {
 export class UpdateVideoProcessingJob {
   constructor(
     private videoProcessingJobRepository: VideoProcessingJobRepository,
+    private userNotifierPublisher: UserNotifierPublisher,
   ) {}
 
   async execute(
@@ -37,6 +39,13 @@ export class UpdateVideoProcessingJob {
 
     const updatedVideoProcessingJob =
       await this.videoProcessingJobRepository.update(videoProcessingJob);
+
+    await this.userNotifierPublisher.publish(
+      updatedVideoProcessingJob.userId,
+      updatedVideoProcessingJob.id,
+      updatedVideoProcessingJob.status,
+      updatedVideoProcessingJob.processedFile,
+    );
 
     return { videoProcessingJob: updatedVideoProcessingJob };
   }
