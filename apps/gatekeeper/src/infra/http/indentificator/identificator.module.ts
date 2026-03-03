@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { CognitoCustomerRepository } from "../indentificator/cognito/cognito-customer-repository";
+import { CognitoCustomerRepository } from "./cognito/cognito-customer-repository";
 
 import { CustomerIdentityRepository } from "../../../application/repositories/customer-identity-repository";
 
@@ -12,4 +12,4 @@ import { CustomerIdentityRepository } from "../../../application/repositories/cu
   ],
   exports: [CustomerIdentityRepository],
 })
-export class DatabaseModule {}
+export class IdentifierModule {}

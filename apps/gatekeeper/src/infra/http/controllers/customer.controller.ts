@@ -9,7 +9,6 @@ import {
   Post,
 } from "@nestjs/common";
 import { CreateCustomerBody } from "../dtos/customer-dtos";
-import { GetCustomerByCpf } from "@gatekeeper/application/use-cases/customer/get-by-cpf";
 import { GetCustomerById } from "@gatekeeper/application/use-cases/customer/get-by-id";
 import { CustomerMapper } from "../view-models/customer-mapper";
 import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
@@ -24,7 +23,6 @@ import { Public } from "@gatekeeper/infra/auth/guards/public";
 export class CustomersController {
   constructor(
     private createCustomer: CreateCustomer,
-    private getCustomerByCpf: GetCustomerByCpf,
     private getCustomerById: GetCustomerById,
   ) {}
 
@@ -44,21 +42,6 @@ export class CustomersController {
       }
       throw error;
     }
-  }
-
-  @ApiOperation({
-    summary: "Buscar cliente por CPF",
-    description: "Retorna os dados de um cliente específico.",
-  })
-  @ApiBearerAuth("jwt")
-  @Get("cpf/:cpf")
-  async getByCpf(@Param("cpf") cpf: string) {
-    const customer = await this.getCustomerByCpf.execute(cpf);
-
-    if (!customer) {
-      throw new NotFoundException("Customer not found");
-    }
-    return CustomerMapper.toHTTP(customer);
   }
 
   @ApiOperation({

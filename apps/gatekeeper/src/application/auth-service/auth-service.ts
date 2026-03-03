@@ -1,6 +1,7 @@
 export abstract class AuthService {
   abstract authenticate(
-    cpf?: string
+    email: string,
+    password: string,
   ): Promise<{ token: string; customerId: string | null }>;
   abstract authorize(token: string): Promise<string | null>;
 }

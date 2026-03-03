@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { CustomerDataRepository } from "@gatekeeper/application/repositories/customer-data-repository";
 import { CustomerNotFound } from "../../errors/customer-error";
 import { Customer } from "@gatekeeper/application/entities/customer";
+import { CustomerIdentityRepository } from "@gatekeeper/application/repositories/customer-identity-repository";
 
 interface GetCustomerByIdRequest {
   customerId: string;
@@ -13,14 +13,19 @@ interface GetCustomerByIdResponse {
 
 @Injectable()
 export class GetCustomerById {
-  constructor(private customerDataRepository: CustomerDataRepository) {}
+  constructor(
+    private readonly customerIdentityRepository: CustomerIdentityRepository,
+  ) {}
 
   async execute(
     request: GetCustomerByIdRequest,
   ): Promise<GetCustomerByIdResponse> {
     const { customerId } = request;
 
-    const customer = await this.customerDataRepository.findById(customerId);
+    // TODO fix
+    const customer = await this.customerIdentityRepository.findById(customerId);
+
+    // await this.customerDataRepository.findById(customerId);
 
     if (!customer) {
       throw new CustomerNotFound(customerId);

@@ -3,31 +3,36 @@ import { Customer } from "@gatekeeper/application/entities/customer";
 import { CustomerIdentityRepository } from "@gatekeeper/application/repositories/customer-identity-repository";
 import {
   CognitoIdentityProviderClient,
-  AdminCreateUserCommand,
   ListUsersCommand,
+  InitiateAuthCommand,
+  SignUpCommand,
+  AdminConfirmSignUpCommand,
+  GetUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { Injectable, Logger } from "@nestjs/common";
 
 @Injectable()
 export class CognitoCustomerRepository implements CustomerIdentityRepository {
   private client = new CognitoIdentityProviderClient({
-    region: "us-east-1",
+    endpoint: process.env.COGNITO_ENDPOINT_URL, // Para testes locais com LocalStack
+    region: process.env.AWS_REGION!,
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-      sessionToken: process.env.AWS_SESSION_TOKEN!,
+      // sessionToken: process.env.AWS_SESSION_TOKEN!,
     },
   });
 
   private userPoolId = process.env.USER_POOL_ID!;
+  private clientId = process.env.COGNITO_APP_CLIENT_ID!;
   private readonly logger = new Logger(CognitoCustomerRepository.name);
 
-  async findByCpf(cpf: string): Promise<Customer | null> {
-    this.logger.log(`[START] Searching user in Cognito - CPF: ${cpf}`);
+  async findByEmail(email: string): Promise<Customer | null> {
+    this.logger.log(`[START] Searching user in Cognito - Email: ${email}`);
     try {
       const command = new ListUsersCommand({
         UserPoolId: this.userPoolId,
-        Filter: `username = "${cpf}"`,
+        Filter: `email = "${email}"`,
         Limit: 1,
       });
 
@@ -36,7 +41,7 @@ export class CognitoCustomerRepository implements CustomerIdentityRepository {
 
       if (!user) {
         this.logger.log(
-          `[NOT FOUND] No user found in Cognito with CPF: ${cpf}`,
+          `[NOT FOUND] No user found in Cognito with Email: ${email}`,
         );
         return null;
       }
@@ -50,7 +55,6 @@ export class CognitoCustomerRepository implements CustomerIdentityRepository {
         {
           name: nameAttr?.Value ?? "",
           email: emailAttr?.Value ?? "",
-          cpf,
         },
         subAttr?.Value!, // Agora o customer.id é o sub
       );
@@ -60,7 +64,7 @@ export class CognitoCustomerRepository implements CustomerIdentityRepository {
       return customer;
     } catch (error: any) {
       this.logger.error(
-        `[ERROR] Failed to find user in Cognito - CPF: ${cpf}`,
+        `[ERROR] Failed to find user in Cognito - Email: ${email}`,
         {
           error: error.message,
           code: error.code,
@@ -75,32 +79,38 @@ export class CognitoCustomerRepository implements CustomerIdentityRepository {
   async create(customer: Customer): Promise<void> {
     try {
       this.logger.log(
-        `[START] Creating user in Cognito - CPF: ${customer.cpf}`,
+        `[START] Creating user in Cognito - Email: ${customer.email}`,
       );
-      this.logger.debug(`UserPool ID: ${this.userPoolId}`);
 
-      if (!this.userPoolId) {
-        throw new Error("USER_POOL_ID not configured");
+      if (!this.clientId) {
+        throw new Error("COGNITO_APP_CLIENT_ID not configured");
       }
 
-      const command = new AdminCreateUserCommand({
-        UserPoolId: this.userPoolId,
-        Username: customer.cpf,
-        UserAttributes: [
-          { Name: "name", Value: customer.name },
-          { Name: "email", Value: customer.email },
-        ],
-        MessageAction: "SUPPRESS", // Não envia email
-      });
+      await this.client.send(
+        new SignUpCommand({
+          ClientId: this.clientId,
+          Username: customer.email,
+          Password: customer.password,
+          UserAttributes: [
+            { Name: "name", Value: customer.name },
+            { Name: "email", Value: customer.email },
+          ],
+        }),
+      );
 
-      this.logger.debug("Sending command to Cognito");
-      await this.client.send(command);
+      await this.client.send(
+        new AdminConfirmSignUpCommand({
+          UserPoolId: this.userPoolId,
+          Username: customer.email,
+        }),
+      );
+
       this.logger.log(
-        `[SUCCESS] User created in Cognito - CPF: ${customer.cpf}`,
+        `[SUCCESS] User created and confirmed in Cognito - Email: ${customer.email}`,
       );
     } catch (error: any) {
       this.logger.error(
-        `[ERROR] Failed to create user in Cognito - CPF: ${customer.cpf}`,
+        `[ERROR] Failed to create user in Cognito - Email: ${customer.email}`,
         {
           error: error.message,
           code: error.code,
@@ -108,6 +118,106 @@ export class CognitoCustomerRepository implements CustomerIdentityRepository {
           stack: error.stack,
         },
       );
+      throw error;
+    }
+  }
+
+  async validate(token: string): Promise<string | null> {
+    this.logger.log(`[START] Validating token with Cognito`);
+    try {
+      const result = await this.client.send(
+        new GetUserCommand({ AccessToken: token }),
+      );
+      const sub =
+        result.UserAttributes?.find((a) => a.Name === "sub")?.Value ?? null;
+      this.logger.log(`[SUCCESS] Token valid - sub: ${sub}`);
+      return sub;
+    } catch (error: any) {
+      this.logger.error(`[ERROR] Token validation failed`, {
+        error: error.message,
+        code: error.code,
+      });
+      throw error;
+    }
+  }
+
+  async signIn(
+    email: string,
+    password: string,
+  ): Promise<{ token: string; customerId: string | null }> {
+    this.logger.log(`[START] Signing in user in Cognito - Email: ${email}`);
+    try {
+      const command = new InitiateAuthCommand({
+        AuthFlow: "USER_PASSWORD_AUTH",
+        ClientId: this.clientId,
+        AuthParameters: {
+          USERNAME: email,
+          PASSWORD: password,
+        },
+      });
+
+      const result = await this.client.send(command);
+      const accessToken = result.AuthenticationResult?.AccessToken;
+
+      if (!accessToken) {
+        throw new Error("No access token returned from Cognito");
+      }
+
+      const payload = JSON.parse(
+        Buffer.from(accessToken.split(".")[1], "base64").toString(),
+      );
+      const customerId: string | null = payload.sub ?? null;
+
+      this.logger.log(`[SUCCESS] User signed in - customerId: ${customerId}`);
+
+      return { token: accessToken, customerId };
+    } catch (error: any) {
+      this.logger.error(
+        `[ERROR] Failed to sign in user in Cognito - Email: ${email}`,
+        {
+          error: error.message,
+          code: error.code,
+          requestId: error.$metadata?.requestId,
+        },
+      );
+      throw error;
+    }
+  }
+
+  async findById(id: string): Promise<Customer | null> {
+    this.logger.log(`[START] Searching user in Cognito - sub: ${id}`);
+    try {
+      const result = await this.client.send(
+        new ListUsersCommand({
+          UserPoolId: this.userPoolId,
+          Filter: `sub = "${id}"`,
+          Limit: 1,
+        }),
+      );
+
+      const user = result.Users?.[0];
+
+      if (!user) {
+        this.logger.log(`[NOT FOUND] No user found in Cognito with sub: ${id}`);
+        return null;
+      }
+
+      const subAttr = user.Attributes?.find((a) => a.Name === "sub");
+      const nameAttr = user.Attributes?.find((a) => a.Name === "name");
+      const emailAttr = user.Attributes?.find((a) => a.Name === "email");
+
+      const customer = new Customer(
+        { name: nameAttr?.Value ?? "", email: emailAttr?.Value ?? "" },
+        subAttr?.Value!,
+      );
+
+      this.logger.log(`[FOUND] Cognito user retrieved - sub: ${customer.id}`);
+      return customer;
+    } catch (error: any) {
+      this.logger.error(`[ERROR] Failed to find user in Cognito - sub: ${id}`, {
+        error: error.message,
+        code: error.code,
+      });
       throw error;
     }
   }

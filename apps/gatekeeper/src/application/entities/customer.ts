@@ -2,9 +2,9 @@ import { Replace } from "@gatekeeper/helpers/Replace";
 import { randomUUID } from "node:crypto";
 
 export interface CustomerProps {
-  cpf: string;
   name: string;
-  email?: string;
+  email: string;
+  password?: string;
   createdAt: Date;
 }
 
@@ -27,16 +27,16 @@ export class Customer {
     return this._id;
   }
 
-  get cpf() {
-    return this.props.cpf;
-  }
-
   get name() {
     return this.props.name;
   }
 
   get email() {
     return this.props.email;
+  }
+
+  get password() {
+    return this.props.password;
   }
 
   get createdAt() {

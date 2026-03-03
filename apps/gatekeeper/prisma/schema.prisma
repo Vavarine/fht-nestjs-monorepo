@@ -10,8 +10,7 @@ generator client {
 
 model Customer {
   id        String   @id // Cognito sub (UUID v4)
-  cpf       String   @unique
   name      String
-  email     String?
+  email     String   @unique
   createdAt DateTime @default(now())
 }

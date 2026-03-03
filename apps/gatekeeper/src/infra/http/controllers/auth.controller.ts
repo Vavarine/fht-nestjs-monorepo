@@ -48,7 +48,8 @@ export class AuthController {
   async login(@Body() body: LoginBody): Promise<LoginResponse> {
     try {
       const { token, customerId } = await this.authService.authenticate(
-        body.cpf,
+        body.email,
+        body.password,
       );
 
       return {

@@ -8,9 +8,12 @@ import { Request } from "express";
 import { IS_PUBLIC_KEY } from "./public";
 import { Reflector } from "@nestjs/core";
 import { AuthService } from "apps/gatekeeper/src/application/auth-service/auth-service";
+import { Logger } from "@nestjs/common";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  private readonly logger = new Logger(AuthGuard.name);
+
   constructor(
     private auth: AuthService,
     private reflector: Reflector,
@@ -26,15 +29,10 @@ export class AuthGuard implements CanActivate {
 
     const token = this.extractTokenFromHeader(request);
 
-    if (
-      isPublic ||
-      process.env.NODE_ENV === "development" ||
-      token === process.env.APP_KEY
-    )
-      return true;
+    if (isPublic) return true;
 
     if (!token) {
-      console.log("No token provided");
+      this.logger.warn("No token provided in request headers");
       throw new UnauthorizedException();
     }
 

@@ -1,24 +1,18 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {
-  IsEmail,
-  IsOptional,
-  IsString,
-  Length,
-  Validate,
-} from "class-validator";
+import { IsEmail, IsOptional, IsString, Length } from "class-validator";
 
 export class CreateCustomerBody {
   @ApiProperty({ example: "João Silva" })
   @IsString()
   name: string;
 
-  @ApiProperty({ example: "joao@email.com", required: false })
+  @ApiProperty({ example: "joao@email.com", required: true })
   @IsEmail()
   @IsOptional()
-  email?: string;
+  email: string;
 
-  @ApiProperty({ example: "12345678901", required: false })
+  @ApiProperty({ example: "12345678", required: true })
   @IsString()
-  @Length(11, 11)
-  cpf: string;
+  @Length(8, Number.MAX_SAFE_INTEGER)
+  password: string;
 }
