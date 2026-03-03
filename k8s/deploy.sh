@@ -8,6 +8,7 @@ NAMESPACE="fiap-hack"
 K8S_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_IMAGE="${API_IMAGE:-vavarine/fiap-hack-api:latest}"
 VIDEO_PROCESSOR_IMAGE="${VIDEO_PROCESSOR_IMAGE:-${WORKER_IMAGE:-vavarine/fiap-hack-video-processor:latest}}"
+GATEKEEPER_IMAGE="${GATEKEEPER_IMAGE:-vavarine/fiap-hack-gatekeeper:latest}"
 USER_NOTIFIER_IMAGE="${USER_NOTIFIER_IMAGE:-vavarine/fiap-hack-user-notifier:latest}"
 RUSTFS_DEPLOY_MODE="${RUSTFS_DEPLOY_MODE:-helm}" # ou "manifest"
 RUSTFS_IMAGE="${RUSTFS_IMAGE:-rustfs/rustfs:latest}"
@@ -46,6 +47,23 @@ kubectl apply -f "$K8S_DIR/postgres.yaml"
 
 echo -e "${YELLOW}5. Deploying RabbitMQ...${NC}"
 kubectl apply -f "$K8S_DIR/rabbitmq.yaml"
+
+echo -e "${YELLOW}5.1. Deploying Cognito Local...${NC}"
+kubectl apply -f "$K8S_DIR/cognito.yaml"
+
+echo -e "${YELLOW}⏳ Aguardando Cognito Local ficar pronto...${NC}"
+kubectl wait --for=condition=ready pod -l app=cognito-local -n "$NAMESPACE" --timeout=120s
+
+echo -e "${YELLOW}5.2. Bootstrapping Cognito user pool e app client...${NC}"
+kubectl delete job cognito-bootstrap -n "$NAMESPACE" --ignore-not-found=true
+kubectl apply -f "$K8S_DIR/cognito-bootstrap-job.yaml"
+if ! kubectl wait --for=condition=complete job/cognito-bootstrap -n "$NAMESPACE" --timeout=120s; then
+  echo "❌ Falha no bootstrap do Cognito."
+  kubectl logs job/cognito-bootstrap -n "$NAMESPACE" --tail=200 || true
+  exit 1
+fi
+echo -e "${GREEN}Cognito bootstrap concluído. IDs:${NC}"
+kubectl logs job/cognito-bootstrap -n "$NAMESPACE" --tail=10
 
 echo -e "${YELLOW}6. Deploying Rustfs...${NC}"
 if [ "$RUSTFS_DEPLOY_MODE" = "helm" ]; then
@@ -115,8 +133,14 @@ kubectl delete hpa user-notifier-hpa -n "$NAMESPACE" --ignore-not-found=true
 kubectl apply -f "$K8S_DIR/user-notifier.yaml"
 kubectl set image deployment/user-notifier user-notifier="$USER_NOTIFIER_IMAGE" -n "$NAMESPACE"
 
+echo -e "${YELLOW}11. Deploying Gatekeeper...${NC}"
+kubectl delete deployment gatekeeper -n "$NAMESPACE" --ignore-not-found=true
+kubectl delete hpa gatekeeper-hpa -n "$NAMESPACE" --ignore-not-found=true
+kubectl apply -f "$K8S_DIR/gatekeeper.yaml"
+kubectl set image deployment/gatekeeper gatekeeper="$GATEKEEPER_IMAGE" -n "$NAMESPACE"
+
 # Ingress (optional)
-echo -e "${YELLOW}11. Deploying Ingress...${NC}"
+echo -e "${YELLOW}12. Deploying Ingress...${NC}"
 kubectl apply -f "$K8S_DIR/ingress.yaml" || echo -e "${YELLOW}⚠️  Ingress pode não estar disponível${NC}"
 
 echo -e "${GREEN}✅ Deploy concluído!${NC}"
@@ -124,6 +148,7 @@ echo "🖼️  Imagens aplicadas:"
 echo "  API: $API_IMAGE"
 echo "  Video Processor: $VIDEO_PROCESSOR_IMAGE"
 echo "  User Notifier: $USER_NOTIFIER_IMAGE"
+echo "  Gatekeeper: $GATEKEEPER_IMAGE"
 if [ "$RUSTFS_DEPLOY_MODE" = "helm" ]; then
   echo "  RustFS: via Helm chart $RUSTFS_HELM_CHART"
 else

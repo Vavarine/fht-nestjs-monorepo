@@ -35,3 +35,16 @@ spec:
   resources:
     requests:
       storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cognito-local-pvc
+  namespace: fiap-hack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

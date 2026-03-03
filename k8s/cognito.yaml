@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cognito-local
+  namespace: fiap-hack
+spec:
+  serviceName: cognito-local
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cognito-local
+  template:
+    metadata:
+      labels:
+        app: cognito-local
+    spec:
+      containers:
+      - name: cognito-local
+        image: jagregory/cognito-local:latest
+        ports:
+        - containerPort: 9229
+          name: http
+        volumeMounts:
+        - name: cognito-local-storage
+          mountPath: /.cognito
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9229
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9229
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: cognito-local-storage
+        persistentVolumeClaim:
+          claimName: cognito-local-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cognito-local
+  namespace: fiap-hack
+spec:
+  clusterIP: None
+  selector:
+    app: cognito-local
+  ports:
+  - port: 9229
+    targetPort: 9229
+    name: http
