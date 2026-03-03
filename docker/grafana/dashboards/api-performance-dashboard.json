@@ -334,7 +334,7 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
-          "expr": "(sum(rate(video_uploads_successful_total[5m])) / sum(rate(video_uploads_total[5m]))) * 100",
+          "expr": "(sum(rate(video_uploads_successful_total[5m])) / clamp_min(sum(rate(video_uploads_total[5m])), 0.001)) * 100",
           "legendFormat": "Upload Success Rate",
           "refId": "A"
         }
