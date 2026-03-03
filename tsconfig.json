@@ -53,8 +53,11 @@
       "@gatekeeper/application/utils/*": [
         "./apps/gatekeeper/src/utils/*"
       ],
-      "@gatekeeper/prisma/*": [
-        "./apps/gatekeeper/generated/prisma/*"
+      "@user-notifier/application/*": [
+        "./apps/user-notifier/src/application/*"
+      ],
+      "@user-notifier/infra/*": [
+        "./apps/user-notifier/src/infra/*"
       ],
       "@file-manager": [
         "./libs/file-manager/src/index.ts"

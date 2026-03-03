@@ -38,10 +38,16 @@
    pnpm start:dev video-processor
 ```
 
-6. Inicie a aplicação gatekeeper:
+7. Inicie a aplicação gatekeeper:
 
 ```bash
    pnpm start:dev gatekeeper
+```
+
+8. Inicie a aplicação de notificações:
+
+```bash
+   pnpm start:dev user-notifier
 ```
 
 Agora você pode acessar a API em `http://localhost:3000` e a interface de gerenciamento do RabbitMQ em `http://localhost:15672` (usuário e senha padrão: `guest`).

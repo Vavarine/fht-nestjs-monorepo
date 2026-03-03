@@ -8,6 +8,7 @@ NAMESPACE="fiap-hack"
 K8S_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_IMAGE="${API_IMAGE:-vavarine/fiap-hack-api:latest}"
 VIDEO_PROCESSOR_IMAGE="${VIDEO_PROCESSOR_IMAGE:-${WORKER_IMAGE:-vavarine/fiap-hack-video-processor:latest}}"
+USER_NOTIFIER_IMAGE="${USER_NOTIFIER_IMAGE:-vavarine/fiap-hack-user-notifier:latest}"
 RUSTFS_DEPLOY_MODE="${RUSTFS_DEPLOY_MODE:-helm}" # ou "manifest"
 RUSTFS_IMAGE="${RUSTFS_IMAGE:-rustfs/rustfs:latest}"
 RUSTFS_HELM_REPO_URL="${RUSTFS_HELM_REPO_URL:-https://charts.rustfs.com}"
@@ -108,14 +109,21 @@ kubectl delete hpa video-processor-hpa -n "$NAMESPACE" --ignore-not-found=true
 kubectl apply -f "$K8S_DIR/video-processor.yaml"
 kubectl set image deployment/video-processor video-processor="$VIDEO_PROCESSOR_IMAGE" -n "$NAMESPACE"
 
+echo -e "${YELLOW}10. Deploying User Notifier...${NC}"
+kubectl delete deployment user-notifier -n "$NAMESPACE" --ignore-not-found=true
+kubectl delete hpa user-notifier-hpa -n "$NAMESPACE" --ignore-not-found=true
+kubectl apply -f "$K8S_DIR/user-notifier.yaml"
+kubectl set image deployment/user-notifier user-notifier="$USER_NOTIFIER_IMAGE" -n "$NAMESPACE"
+
 # Ingress (optional)
-echo -e "${YELLOW}10. Deploying Ingress...${NC}"
+echo -e "${YELLOW}11. Deploying Ingress...${NC}"
 kubectl apply -f "$K8S_DIR/ingress.yaml" || echo -e "${YELLOW}⚠️  Ingress pode não estar disponível${NC}"
 
 echo -e "${GREEN}✅ Deploy concluído!${NC}"
 echo "🖼️  Imagens aplicadas:"
 echo "  API: $API_IMAGE"
 echo "  Video Processor: $VIDEO_PROCESSOR_IMAGE"
+echo "  User Notifier: $USER_NOTIFIER_IMAGE"
 if [ "$RUSTFS_DEPLOY_MODE" = "helm" ]; then
   echo "  RustFS: via Helm chart $RUSTFS_HELM_CHART"
 else
