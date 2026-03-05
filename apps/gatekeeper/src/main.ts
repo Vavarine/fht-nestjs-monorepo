@@ -7,7 +7,7 @@ import { Transport } from "@nestjs/microservices";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new ConsoleLogger({
-      prefix: "gatekeeper", // Default is "Nest"
+      prefix: "gtk", // Default is "Nest"
       breakLength: 10, // Default is 1000
     }),
   });
