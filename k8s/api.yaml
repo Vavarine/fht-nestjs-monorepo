@@ -63,6 +63,9 @@ spec:
       - name: wait-for-rabbitmq
         image: busybox:1.28
         command: ['sh', '-c', 'attempt=0; until nc -z rabbitmq 5672; do attempt=$((attempt+1)); if [ "$attempt" -ge 150 ]; then echo timeout waiting for rabbitmq; exit 1; fi; echo waiting for rabbitmq; sleep 2; done']
+      - name: wait-for-redis
+        image: busybox:1.28
+        command: ['sh', '-c', 'attempt=0; until nc -z redis 6379; do attempt=$((attempt+1)); if [ "$attempt" -ge 150 ]; then echo timeout waiting for redis; exit 1; fi; echo waiting for redis; sleep 2; done']
       - name: wait-for-rustfs
         image: busybox:1.28
         command: ['sh', '-c', 'attempt=0; until wget -q --spider http://rustfs-svc:9000/health; do attempt=$((attempt+1)); if [ "$attempt" -ge 150 ]; then echo timeout waiting for rustfs health; exit 1; fi; echo waiting for rustfs health; sleep 2; done']
