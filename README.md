@@ -35,10 +35,16 @@ pnpm start:dev api
 pnpm start:dev video-processor
 ```
 
+7. Inicie a aplicação user-notifier:
+```bash
+pnpm start:dev user-notifier
+```
+
 **🎯 Pronto! Agora você pode acessar:**
 - **API**: http://localhost:3000
 - **Video Processor**: http://localhost:3001
-- **Grafana** (Dashboards): http://localhost:3002 (admin/admin123)
+- **User Notifier**: http://localhost:3002
+- **Grafana** (Dashboards): http://localhost:3003 (admin/admin123)
 - **Prometheus** (Métricas): http://localhost:9090
 - **RabbitMQ Management**: http://localhost:15672 (guest/guest)
 - **RustFS Console**: http://localhost:9001
@@ -65,6 +71,9 @@ curl http://localhost:3000/metrics
 
 # Testar métricas do Video Processor
 curl http://localhost:3001/metrics
+
+# Testar métricas do User Notifier
+curl http://localhost:3002/metrics
 ```
 ---
 
@@ -77,6 +86,11 @@ Build da imagem da API:
 Build da imagem do video-processor:
 ```bash
    docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
+```
+
+Build da imagem do user-notifier:
+```bash
+   docker build -t fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .
 ```
 
 Suba com docker compose:
@@ -110,9 +124,10 @@ chmod +x k8s/create-k3d-cluster.sh k8s/deploy.sh
 # Build das imagens
 docker build -t fiap-hack-api:latest -f docker/api.dockerfile .
 docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
+docker build -t fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .
 
 # Import para o k3d cluster
-./k3d.exe image import fiap-hack-api:latest fiap-hack-video-processor:latest -c fht-cluster
+./k3d.exe image import fiap-hack-api:latest fiap-hack-video-processor:latest fiap-hack-user-notifier:latest -c fht-cluster
 ```
 
 ### 3. Faça o deploy de todos os recursos Kubernetes
@@ -142,6 +157,7 @@ kubectl get svc -n fiap-hack
 
 ### 5. Acesse os serviços
 - **API** (NodePort): http://localhost:30080
+- **User Notifier** (NodePort): http://localhost:30082
 - **Grafana** (Dashboards): http://localhost:30030 (admin/admin123)
 - **Prometheus** (Métricas): http://localhost:30090
 - **RustFS Console**: http://localhost:30901
@@ -151,6 +167,7 @@ kubectl get svc -n fiap-hack
 ```bash
 kubectl logs -n fiap-hack deployment/api -f
 kubectl logs -n fiap-hack deployment/video-processor -f
+kubectl logs -n fiap-hack deployment/user-notifier -f
 kubectl get events -n fiap-hack --sort-by='.lastTimestamp'
 ```
 
