@@ -71,7 +71,7 @@ services:
     image: grafana/grafana:10.0.0
     container_name: fiap-hack-grafana
     ports:
-      - "3002:3000"
+      - "3003:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin123
