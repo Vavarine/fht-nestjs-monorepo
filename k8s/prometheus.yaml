@@ -63,6 +63,25 @@ data:
             action: replace
             target_label: instance
 
+      # User Notifier service metrics
+      - job_name: 'user-notifier'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - fiap-hack
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: user-notifier
+          - source_labels: [__meta_kubernetes_pod_ip]
+            action: replace
+            target_label: __address__
+            replacement: $1:3002
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: instance
+
       # RabbitMQ metrics
       - job_name: 'rabbitmq'
         kubernetes_sd_configs:

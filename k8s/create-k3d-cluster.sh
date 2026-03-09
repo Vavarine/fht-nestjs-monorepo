@@ -24,11 +24,13 @@ $K3D_CMD cluster delete "${CLUSTER_NAME}" >/dev/null 2>&1 || true
 # - API NodePort (30080) exposta no host
 # - Prometheus NodePort (30090) exposta no host
 # - Grafana NodePort (30030) exposta no host
+# - User Notifier NodePort (30082) exposta no host
 # - RustFS Console NodePort (30901) exposta no host
 # - RabbitMQ Management NodePort (31672) exposta no host
 # - Portas padrão de Ingress expostas no host
 $K3D_CMD cluster create "${CLUSTER_NAME}" \
   -p "30080:30080@loadbalancer" \
+  -p "30082:30082@loadbalancer" \
   -p "30090:30090@loadbalancer" \
   -p "30030:30030@loadbalancer" \
   -p "30901:30901@loadbalancer" \

@@ -81,6 +81,7 @@ data:
 # kubectl create configmap grafana-dashboards \
 #   --from-file=docker/grafana/dashboards/api-performance-dashboard.json \
 #   --from-file=docker/grafana/dashboards/video-processing-dashboard.json \
+#   --from-file=docker/grafana/dashboards/user-notifier-dashboard.json \
 #   -n fiap-hack
 #
 # Isso garante que os dashboards são carregados corretamente no Grafana.

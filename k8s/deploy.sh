@@ -110,6 +110,7 @@ kubectl delete configmap grafana-dashboards -n "$NAMESPACE" --ignore-not-found=t
 kubectl create configmap grafana-dashboards \
   --from-file="$K8S_DIR/../docker/grafana/dashboards/api-performance-dashboard.json" \
   --from-file="$K8S_DIR/../docker/grafana/dashboards/video-processing-dashboard.json" \
+  --from-file="$K8S_DIR/../docker/grafana/dashboards/user-notifier-dashboard.json" \
   -n "$NAMESPACE"
 
 echo -e "${YELLOW}⏳ Aguardando Prometheus ficar pronto...${NC}"
