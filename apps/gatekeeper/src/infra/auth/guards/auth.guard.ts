@@ -31,6 +31,10 @@ export class AuthGuard implements CanActivate {
 
     if (isPublic) return true;
 
+    const serviceKey = request.headers["x-internal-api-key"];
+    const expectedKey = process.env.INTERNAL_SERVICE_API_KEY;
+    if (expectedKey && serviceKey === expectedKey) return true;
+
     if (!token) {
       this.logger.warn("No token provided in request headers");
       throw new UnauthorizedException();

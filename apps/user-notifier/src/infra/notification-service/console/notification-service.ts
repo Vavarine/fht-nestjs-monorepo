@@ -12,7 +12,7 @@ export class ConsoleNotificationService implements NotificationService {
     const fileLabel = payload.fileName ? ` file ${payload.fileName}` : "";
 
     this.logger.log(
-      `Notifying user ${payload.userId} with status ${payload.status} for job ${payload.videoProcessingJobId}${fileLabel}`,
+      `Notifying user ${payload.userName} (${payload.userEmail}) with status ${payload.status} for job ${payload.videoProcessingJobId}${fileLabel}`,
     );
   }
 }
