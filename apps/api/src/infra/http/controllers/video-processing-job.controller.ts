@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   Logger,
   Get,
+  Inject,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
@@ -24,6 +25,7 @@ import { VideoProcessingView } from "../view-models/video-process-view-module";
 import { Ctx, MessagePattern, Payload } from "@nestjs/microservices";
 import { UpdateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/update";
 import { ListVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/list";
+import { CACHE_MANAGER, CacheInterceptor } from "@nestjs/cache-manager";
 
 @Controller("video-processing-jobs")
 @ApiBearerAuth("jwt")
@@ -35,6 +37,7 @@ export class VideoProcessingJobsController {
     private updateVideoProcessingJob: UpdateVideoProcessingJob,
     private listVideoProcessingJob: ListVideoProcessingJob,
     private fileManager: FileManager,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @ApiOperation({
@@ -77,6 +80,7 @@ export class VideoProcessingJobsController {
     description: "Lista os videos de um usuario",
   })
   @Get("")
+  @UseInterceptors(CacheInterceptor)
   async list() {
     try {
       const response = await this.listVideoProcessingJob.execute({
