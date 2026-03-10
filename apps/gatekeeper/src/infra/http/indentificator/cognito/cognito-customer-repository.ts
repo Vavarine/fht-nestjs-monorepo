@@ -23,8 +23,8 @@ export class CognitoCustomerRepository implements CustomerIdentityRepository {
     },
   });
 
-  private userPoolId = process.env.USER_POOL_ID!;
-  private clientId = process.env.COGNITO_APP_CLIENT_ID!;
+  private userPoolId = process.env.COGNITO_USER_POOL_ID!;
+  private clientId = process.env.COGNITO_CLIENT_ID!;
   private readonly logger = new Logger(CognitoCustomerRepository.name);
 
   async findByEmail(email: string): Promise<Customer | null> {
@@ -83,7 +83,7 @@ export class CognitoCustomerRepository implements CustomerIdentityRepository {
       );
 
       if (!this.clientId) {
-        throw new Error("COGNITO_APP_CLIENT_ID not configured");
+        throw new Error("COGNITO_CLIENT_ID not configured");
       }
 
       await this.client.send(

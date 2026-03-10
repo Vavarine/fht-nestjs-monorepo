@@ -66,6 +66,18 @@ Build da imagem do video-processor:
    docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
 ```
 
+Build da imagem do gatekeeper:
+
+```bash
+   docker build -t fiap-hack-gatekeeper:latest -f docker/gatekeeper.dockerfile .
+```
+
+Build da imagem do user-notifier:
+
+```bash
+   docker build -t fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .
+```
+
 Suba com docker compose:
 
 ```bash

@@ -65,6 +65,13 @@ fi
 echo -e "${GREEN}Cognito bootstrap concluído. IDs:${NC}"
 kubectl logs job/cognito-bootstrap -n "$NAMESPACE" --tail=10
 
+COGNITO_POOL_ID=$(kubectl logs job/cognito-bootstrap -n "$NAMESPACE" | grep "User Pool ID:" | awk '{print $NF}')
+COGNITO_CLIENT_ID=$(kubectl logs job/cognito-bootstrap -n "$NAMESPACE" | grep "Client ID:" | awk '{print $NF}')
+kubectl patch configmap app-config -n "$NAMESPACE" \
+  --type merge \
+  -p "{\"data\":{\"COGNITO_USER_POOL_ID\":\"$COGNITO_POOL_ID\",\"COGNITO_CLIENT_ID\":\"$COGNITO_CLIENT_ID\"}}"
+echo -e "${GREEN}ConfigMap atualizado: COGNITO_USER_POOL_ID=$COGNITO_POOL_ID | COGNITO_CLIENT_ID=$COGNITO_CLIENT_ID${NC}"
+
 echo -e "${YELLOW}6. Deploying Rustfs...${NC}"
 if [ "$RUSTFS_DEPLOY_MODE" = "helm" ]; then
   if ! command -v helm >/dev/null 2>&1; then
