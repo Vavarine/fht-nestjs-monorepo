@@ -3,17 +3,6 @@ import { UpdateVideoProcessingJob } from './update';
 import { VideoProcessingJob, VideoProcessingJobStatus } from '@api/application/entities/video-processing-job';
 import { UserNotifierPublisher } from '@api/application/publishers/user-notifier.publisher';
 
-class MockUserNotifierPublisher implements UserNotifierPublisher {
-    async publish(
-        userId: string,
-        videoProcessingJobId: string,
-        status: VideoProcessingJobStatus,
-        fileName?: string,
-    ): Promise<void> {
-        // Mock implementation - does nothing
-    }
-}
-
 describe('UpdateVideoProcessingJob', () => {
     let updateVideoProcessingJob: UpdateVideoProcessingJob;
     let videoProcessingJobRepository: InMemoryVideoProcessingJobRepository;
@@ -21,7 +10,9 @@ describe('UpdateVideoProcessingJob', () => {
 
     beforeEach(() => {
         videoProcessingJobRepository = new InMemoryVideoProcessingJobRepository();
-        userNotifierPublisher = new MockUserNotifierPublisher();
+        userNotifierPublisher = {
+            publish: jest.fn(),
+        } as any;
         updateVideoProcessingJob = new UpdateVideoProcessingJob(
             videoProcessingJobRepository,
             userNotifierPublisher,
