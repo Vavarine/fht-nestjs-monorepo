@@ -8,11 +8,11 @@
   "scripts": {
     "build": "nest build",
     "start": "node dist/main",
-    "start:dev": "ENV=development dotenv -e .env.dev -- nest start --watch",
-    "start:dev:all": "ENV=development dotenv -e .env.dev -- concurrently --prefix \"none\" \"nest start api --watch\" \"nest start video-processor --watch\" \"nest start user-notifier --watch\" \"nest start gatekeeper --watch\"",
-    "start:dev:api": "ENV=development dotenv -e .env.dev -- nest start api --watch",
-    "start:dev:video-processor": "ENV=development dotenv -e .env.dev -- nest start video-processor --watch",
-    "start:dev:user-notifier": "ENV=development dotenv -e .env.dev -- nest start user-notifier --watch",
+    "start:dev": "ENV=development dotenv -e .env.dev -e ./cognito-credentials/cognito.env -- nest start --watch",
+    "start:dev:all": "ENV=development dotenv -e .env.dev -e ./cognito-credentials/cognito.env -- concurrently --prefix \"none\" \"nest start api --watch\" \"nest start video-processor --watch\" \"nest start user-notifier --watch\" \"nest start gatekeeper --watch\"",
+    "start:dev:api": "ENV=development dotenv -e .env.dev -e ./cognito-credentials/cognito.env -- nest start api --watch",
+    "start:dev:video-processor": "ENV=development dotenv -e .env.dev -e ./cognito-credentials/cognito.env -- nest start video-processor --watch",
+    "start:dev:user-notifier": "ENV=development dotenv -e .env.dev -e ./cognito-credentials/cognito.env -- nest start user-notifier --watch",
     "test": "jest",
     "prisma:dev:studio": "dotenv -e .env.dev -- prisma studio --config apps/api/prisma.config.ts",
     "prisma:dev:generate": "dotenv -e .env.dev -- prisma generate --schema apps/api/prisma/schema.prisma --config apps/api/prisma.config.ts &&  dotenv -e .env.dev -- prisma generate --schema apps/gatekeeper/prisma/schema.prisma --config apps/gatekeeper/prisma.config.ts",
@@ -39,9 +39,9 @@
     "loadtest:k6:docker": "docker run --rm --network host -v $(pwd)/k6:/scripts -e BASE_URL=http://localhost:30080 grafana/k6 run /scripts/api-load.ts "
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.982.0",
     "@aws-sdk/client-s3": "^3.982.0",
     "@aws-sdk/s3-request-presigner": "^3.982.0",
-    "@aws-sdk/client-cognito-identity-provider": "^3.982.0",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.1.0",
     "@nestjs/config": "^4.0.2",
@@ -65,7 +65,8 @@
     "fluent-ffmpeg": "^2.1.3",
     "install": "^0.13.0",
     "npm": "^11.9.0",
-    "prisma": "^7.3.0"
+    "prisma": "^7.3.0",
+    "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.7",
