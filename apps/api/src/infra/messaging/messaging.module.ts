@@ -17,6 +17,10 @@ import { RabbitmqService } from "./rabbitmq/rabbitmq.service";
       useClass: RabbitMQUserNotifierPublisher,
     },
   ],
-  exports: [VideoProcessingPublisherJob, UserNotifierPublisher, RabbitmqService],
+  exports: [
+    VideoProcessingPublisherJob,
+    UserNotifierPublisher,
+    RabbitmqService,
+  ],
 })
 export class MessagingModule {}

@@ -27,6 +27,31 @@ services:
       retries: 5
       start_period: 30s
 
+  redisdev:
+    image: redis:7-alpine
+    container_name: fiap-hack-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: fiap-hack-rustfs
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - rustfs_data:/data
+      - rustfs_logs:/logs
+    restart: unless-stopped
+
   api:
     image: fiap-hack-api
     container_name: fiap-hack-api
@@ -37,6 +62,10 @@ services:
         condition: service_started
       rabbitmqdev:
         condition: service_healthy
+      redisdev:
+        condition: service_healthy
+      rustfs:
+        condition: service_started
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -107,3 +136,6 @@ volumes:
   pgdatadev:
   prometheusdata:
   grafanadata:
+  redisdata:
+  rustfs_data:
+  rustfs_logs:
