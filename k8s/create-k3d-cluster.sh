@@ -7,9 +7,9 @@ CLUSTER_NAME="${1:-fht-cluster}"
 # Detecta se está no Windows e usa k3d.exe, senão usa k3d
 if command -v k3d.exe &> /dev/null; then
     K3D_CMD="k3d.exe"
-elif [ -f "../k3d.exe" ]; then
+elif [[ -f "../k3d.exe" ]]; then
     K3D_CMD="../k3d.exe"
-elif [ -f "./k3d.exe" ]; then
+elif [[ -f "./k3d.exe" ]]; then
     K3D_CMD="./k3d.exe"
 else
     K3D_CMD="k3d"
