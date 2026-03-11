@@ -1,13 +1,17 @@
 import { UserNotifierPublisher } from "@api/application/publishers/user-notifier.publisher";
 import { VideoProcessingJobStatus } from "@api/application/entities/video-processing-job";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 
 @Injectable()
-export class RabbitMQUserNotifierPublisher implements UserNotifierPublisher {
+export class RabbitMQUserNotifierPublisher implements UserNotifierPublisher, OnModuleInit {
   constructor(
     @Inject("USER_NOTIFIER_SERVICE") private readonly client: ClientProxy,
   ) {}
+
+  async onModuleInit() {
+    await this.client.connect();
+  }
 
   async publish(
     userId: string,
