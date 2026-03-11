@@ -1,6 +1,6 @@
 # FIAP Hackathon NestJs Monorepo
 
-[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Lauraellen_fht-nestjs-monorepo&metric=coverage&token=95f37a91b4f51c4e850222c62aa15edd671486e5)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Lauraellen_fht-nestjs-monorepo&metric=bugs&token=95f37a91b4f51c4e850222c62aa15edd671486e5)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo)
 
 ## Rodando a Aplicação
 
