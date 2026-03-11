@@ -1,15 +1,21 @@
 import { InMemoryVideoProcessingJobRepository } from '@test/repositories/in-memory-video-processing-job-repository';
 import { UpdateVideoProcessingJob } from './update';
 import { VideoProcessingJob, VideoProcessingJobStatus } from '@api/application/entities/video-processing-job';
+import { UserNotifierPublisher } from '@api/application/publishers/user-notifier.publisher';
 
 describe('UpdateVideoProcessingJob', () => {
     let updateVideoProcessingJob: UpdateVideoProcessingJob;
     let videoProcessingJobRepository: InMemoryVideoProcessingJobRepository;
+    let userNotifierPublisher: UserNotifierPublisher;
 
     beforeEach(() => {
         videoProcessingJobRepository = new InMemoryVideoProcessingJobRepository();
+        userNotifierPublisher = {
+            publish: jest.fn(),
+        } as any;
         updateVideoProcessingJob = new UpdateVideoProcessingJob(
             videoProcessingJobRepository,
+            userNotifierPublisher,
         );
     });
 
