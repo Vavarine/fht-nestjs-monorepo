@@ -172,6 +172,7 @@ echo "💾 PersistentVolumeClaims:"
 kubectl get pvc -n "$NAMESPACE"
 
 echo "Acesso API (NodePort):      http://localhost:30080"
+echo "Acesso Gatekeeper:          http://localhost:30081"
 echo "RustFS Console:             http://localhost:30901"
 echo "RabbitMQ Management:        http://localhost:31672"
 echo "Acesso Ingress HTTP:        http://localhost:8080"
