@@ -1,14 +1,15 @@
-import { Module } from "@nestjs/common";
-import { DatabaseModule } from "../database/database.module";
 import { CreateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/create";
-import { VideoProcessingJobsController } from "./controllers/video-processing-job.controller";
+import { ListVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/list";
+import { UpdateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/update";
 import { MessagingModule } from "@api/infra/messaging/messaging.module";
 import { FileManagerModule } from "@file-manager";
-import { UpdateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/update";
-import { ListVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/list";
+import { Module } from "@nestjs/common";
+import { AppCacheModule } from "../cache/cache.module";
+import { DatabaseModule } from "../database/database.module";
+import { VideoProcessingJobsController } from "./controllers/video-processing-job.controller";
 
 @Module({
-  imports: [DatabaseModule, FileManagerModule, MessagingModule],
+  imports: [AppCacheModule, DatabaseModule, FileManagerModule, MessagingModule],
   controllers: [VideoProcessingJobsController],
   providers: [
     CreateVideoProcessingJob,
