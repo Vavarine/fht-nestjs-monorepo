@@ -18,6 +18,17 @@ const config: Config = {
     '!**/test/**',
   ],
   coverageDirectory: './coverage',
+  coverageReporters: [
+    'text',
+    'lcov',
+    'clover',
+    'json',
+  ],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '.spec.ts$',
+    '.mock.ts$',
+  ],
   testEnvironment: 'node',
 
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {

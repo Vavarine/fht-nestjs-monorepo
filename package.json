@@ -15,7 +15,7 @@
     "start:dev:user-notifier": "ENV=development dotenv -e .env.dev -- nest start user-notifier --watch",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test:cov": "jest --coverage && node scripts/normalize-coverage.js",
     "test:e2e": "jest --config ./jest.e2e.config.ts --testPathIgnorePatterns=video-processing-jobs.e2e-spec.ts",
     "test:e2e:watch": "jest --config ./jest.e2e.config.ts --watch --testPathIgnorePatterns=video-processing-jobs.e2e-spec.ts",
     "test:e2e:cov": "jest --config ./jest.e2e.config.ts --coverage --testPathIgnorePatterns=video-processing-jobs.e2e-spec.ts",
