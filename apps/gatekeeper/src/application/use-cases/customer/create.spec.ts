@@ -1,27 +1,21 @@
-import { InMemoryCustomersRepository } from "@test/repositories/in-memory-cutomers-repository";
 import { InMemoryCustomerIdentityRepository } from "@test/repositories/in-memory-customer-identity-repository";
 import { CreateCustomer, CreateCustomerRequest } from "./create";
 import { CustomerAlreadyExistsError } from "../../errors/customer-error";
 
 describe("CreateCustomer", () => {
   let createCustomer: CreateCustomer;
-  let customerDataRepository: InMemoryCustomersRepository;
   let customerIdentityRepository: InMemoryCustomerIdentityRepository;
 
   beforeEach(() => {
-    customerDataRepository = new InMemoryCustomersRepository();
     customerIdentityRepository = new InMemoryCustomerIdentityRepository();
-    createCustomer = new CreateCustomer(
-      customerIdentityRepository,
-      customerDataRepository,
-    );
+    createCustomer = new CreateCustomer(customerIdentityRepository);
   });
 
   it("should create a customer successfully", async () => {
     const request: CreateCustomerRequest = {
       name: "João Silva",
       email: "joao@example.com",
-      cpf: "12345678901",
+      password: "secret123",
     };
 
     const response = await createCustomer.execute(request);
@@ -29,45 +23,43 @@ describe("CreateCustomer", () => {
     expect(response).toHaveProperty("customerId");
     expect(typeof response.customerId).toBe("string");
 
-    const savedCustomer = await customerDataRepository.findById(
+    const savedCustomer = await customerIdentityRepository.findById(
       response.customerId,
     );
     expect(savedCustomer).not.toBeNull();
     expect(savedCustomer?.name).toBe(request.name);
     expect(savedCustomer?.email).toBe(request.email);
-    expect(savedCustomer?.cpf).toBe(request.cpf);
     expect(savedCustomer?.createdAt).toBeInstanceOf(Date);
   });
 
-  it("should be able to find created customer by CPF", async () => {
+  it("should be able to find created customer by email", async () => {
     const request: CreateCustomerRequest = {
       name: "Ana Costa",
       email: "ana@example.com",
-      cpf: "11122233344",
+      password: "secret123",
     };
 
     await createCustomer.execute(request);
 
-    const foundCustomer = await customerDataRepository.findByEmail(
-      request.cpf!,
+    const foundCustomer = await customerIdentityRepository.findByEmail(
+      request.email,
     );
     expect(foundCustomer).not.toBeNull();
     expect(foundCustomer?.name).toBe(request.name);
     expect(foundCustomer?.email).toBe(request.email);
-    expect(foundCustomer?.cpf).toBe(request.cpf);
   });
 
   it("should create customers with different IDs", async () => {
     const request1: CreateCustomerRequest = {
-      cpf: "12345678901",
       name: "Cliente 1",
       email: "cliente1@example.com",
+      password: "secret123",
     };
 
     const request2: CreateCustomerRequest = {
-      cpf: "98765432100",
       name: "Cliente 2",
       email: "cliente2@example.com",
+      password: "secret123",
     };
 
     const response1 = await createCustomer.execute(request1);
@@ -75,10 +67,10 @@ describe("CreateCustomer", () => {
 
     expect(response1.customerId).not.toBe(response2.customerId);
 
-    const customer1 = await customerDataRepository.findById(
+    const customer1 = await customerIdentityRepository.findById(
       response1.customerId,
     );
-    const customer2 = await customerDataRepository.findById(
+    const customer2 = await customerIdentityRepository.findById(
       response2.customerId,
     );
 
@@ -86,19 +78,19 @@ describe("CreateCustomer", () => {
     expect(customer2?.name).toBe(request2.name);
   });
 
-  it("should throw CustomerAlreadyExistsError when customer with same CPF already exists", async () => {
+  it("should throw CustomerAlreadyExistsError when customer with same email already exists", async () => {
     const existingCustomer: CreateCustomerRequest = {
       name: "João Silva",
-      email: "",
-      cpf: "94960766026",
+      email: "joao@example.com",
+      password: "secret123",
     };
 
     await createCustomer.execute(existingCustomer);
 
     const newCustomer: CreateCustomerRequest = {
       name: "José Souza",
-      email: "",
-      cpf: "94960766026",
+      email: "joao@example.com",
+      password: "other123",
     };
 
     await expect(createCustomer.execute(newCustomer)).rejects.toThrow(

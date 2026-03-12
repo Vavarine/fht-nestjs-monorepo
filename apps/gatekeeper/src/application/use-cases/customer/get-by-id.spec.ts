@@ -16,7 +16,6 @@ describe("GetCustomerById", () => {
     const customer = new Customer({
       name: "João Silva",
       email: "joao@example.com",
-      cpf: "12345678901",
       createdAt: new Date(),
     });
 
@@ -27,7 +26,6 @@ describe("GetCustomerById", () => {
     expect(result.customer.id).toBe(customer.id);
     expect(result.customer.name).toBe("João Silva");
     expect(result.customer.email).toBe("joao@example.com");
-    expect(result.customer.cpf).toBe("12345678901");
     expect(result.customer.createdAt).toBeInstanceOf(Date);
   });
 
@@ -41,14 +39,14 @@ describe("GetCustomerById", () => {
     const customer1 = new Customer({
       name: "João Silva",
       email: "joao@example.com",
-      cpf: "11111111111",
+
       createdAt: new Date(),
     });
 
     const customer2 = new Customer({
       name: "Maria Santos",
       email: "maria@example.com",
-      cpf: "22222222222",
+
       createdAt: new Date(),
     });
 
@@ -60,6 +58,5 @@ describe("GetCustomerById", () => {
     expect(result.customer.id).toBe(customer2.id);
     expect(result.customer.name).toBe("Maria Santos");
     expect(result.customer.email).toBe("maria@example.com");
-    expect(result.customer.cpf).toBe("22222222222");
   });
 });
