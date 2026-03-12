@@ -1,16 +1,16 @@
 export class CustomerAlreadyExistsError extends Error {
-    constructor() {
-        super('Customer with this CPF already exists.');
-    }
+  constructor() {
+    super("Customer already exists.");
+  }
 }
 
 export class CustomerNotFound extends Error {
-    constructor(cpf: string) {
-        super(`Customer with cpf ${cpf} not found`);
-    }
+  constructor(email: string) {
+    super(`Customer with email ${email} not found`);
+  }
 }
 export class CustomerMismatchError extends Error {
-    constructor() {
-        super("Customer ID does not match the cart owner");
-    }
+  constructor() {
+    super("Customer ID does not match the cart owner");
+  }
 }

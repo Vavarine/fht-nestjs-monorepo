@@ -59,6 +59,12 @@
       "@user-notifier/infra/*": [
         "./apps/user-notifier/src/infra/*"
       ],
+      "@auth": [
+        "./libs/auth/src/index.ts"
+      ],
+      "@auth/*": [
+        "./libs/auth/src/*"
+      ],
       "@file-manager": [
         "./libs/file-manager/src/index.ts"
       ],

@@ -5,9 +5,9 @@ import {
   InternalServerErrorException,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { AuthService } from "apps/gatekeeper/src/application/auth-service/auth-service";
+import { AuthService } from "@gatekeeper/application/auth-service/auth-service";
 import { LoginBody } from "../../auth/auth-dtos";
-import { Public } from "../../auth/guards/public";
+import { Public } from "@auth";
 
 interface LoginResponse {
   access_token: string;

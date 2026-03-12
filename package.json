@@ -25,6 +25,7 @@
     "docker:build:video-processor": "docker build -t vavarine/fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .",
     "docker:build:user-notifier": "docker build -t vavarine/fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .",
     "docker:build:gatekeeper": "docker build -t vavarine/fiap-hack-gatekeeper:latest -f docker/gatekeeper.dockerfile .",
+    "docker:build:all": "concurrently \"pnpm run docker:build:api\" \"pnpm run docker:build:video-processor\" \"pnpm run docker:build:user-notifier\" \"pnpm run docker:build:gatekeeper\"",
     "docker:push:api": "docker push vavarine/fiap-hack-api:latest",
     "docker:push:video-processor": "docker push vavarine/fiap-hack-video-processor:latest",
     "docker:push:user-notifier": "docker push vavarine/fiap-hack-user-notifier:latest",

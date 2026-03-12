@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   Logger,
   Get,
+  Req,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
@@ -46,6 +47,7 @@ export class VideoProcessingJobsController {
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("file"))
   async create(
+    @Req() req: Request,
     @Body() body: CreateVideoProcessingJobDTO,
     @UploadedFile(
       new ParseFilePipe({
@@ -63,7 +65,7 @@ export class VideoProcessingJobsController {
       buffer,
       originalFileName: originalname,
       mimeType: mimetype,
-      userId: "MOCK",
+      userId: req["customerId"],
     });
 
     return VideoProcessingView.toHTTP(
@@ -77,10 +79,13 @@ export class VideoProcessingJobsController {
     description: "Lista os videos de um usuario",
   })
   @Get("")
-  async list() {
+  async list(@Req() req: Request) {
+    this.logger.log(
+      `Listing video processing jobs for user: ${req["customerId"]}`,
+    );
     try {
       const response = await this.listVideoProcessingJob.execute({
-        userId: "MOCK",
+        userId: req["customerId"],
       });
 
       return Promise.allSettled(
@@ -99,7 +104,8 @@ export class VideoProcessingJobsController {
   @MessagePattern("change_video_status")
   async status(@Payload() data, @Ctx() context) {
     this.logger.log(
-      "change status message received for job id: " + data.videoProcessingJobId,
+      "change status message received for job 11111 id: " +
+        data.videoProcessingJobId,
     );
 
     this.updateVideoProcessingJob.execute({

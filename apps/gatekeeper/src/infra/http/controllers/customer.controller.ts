@@ -17,7 +17,7 @@ import {
   CustomerAlreadyExistsError,
   CustomerNotFound,
 } from "@gatekeeper/application/errors/customer-error";
-import { Public } from "@gatekeeper/infra/auth/guards/public";
+import { Public } from "@auth";
 
 @Controller("customers")
 export class CustomersController {

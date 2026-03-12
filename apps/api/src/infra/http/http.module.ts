@@ -6,14 +6,17 @@ import { MessagingModule } from "@api/infra/messaging/messaging.module";
 import { FileManagerModule } from "@file-manager";
 import { UpdateVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/update";
 import { ListVideoProcessingJob } from "@api/application/use-cases/video-processing-jobs/list";
+import { AuthModule, AuthService } from "@auth";
+import { CognitoAuthService } from "@auth/infra/cognito/cognito-auth.service";
 
 @Module({
-  imports: [DatabaseModule, FileManagerModule, MessagingModule],
+  imports: [DatabaseModule, FileManagerModule, MessagingModule, AuthModule],
   controllers: [VideoProcessingJobsController],
   providers: [
     CreateVideoProcessingJob,
     UpdateVideoProcessingJob,
     ListVideoProcessingJob,
+    { provide: AuthService, useClass: CognitoAuthService },
   ],
 })
 export class HttpModule {}
