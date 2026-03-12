@@ -72,7 +72,10 @@ kubectl patch configmap app-config -n "$NAMESPACE" \
   -p "{\"data\":{\"COGNITO_USER_POOL_ID\":\"$COGNITO_POOL_ID\",\"COGNITO_CLIENT_ID\":\"$COGNITO_CLIENT_ID\"}}"
 echo -e "${GREEN}ConfigMap atualizado: COGNITO_USER_POOL_ID=$COGNITO_POOL_ID | COGNITO_CLIENT_ID=$COGNITO_CLIENT_ID${NC}"
 
-echo -e "${YELLOW}6. Deploying Rustfs...${NC}"
+echo -e "${YELLOW}6. Deploying Redis...${NC}"
+kubectl apply -f "$K8S_DIR/redis.yaml"
+
+echo -e "${YELLOW}7. Deploying Rustfs...${NC}"
 if [ "$RUSTFS_DEPLOY_MODE" = "helm" ]; then
   if ! command -v helm >/dev/null 2>&1; then
     echo "❌ Helm não encontrado. Instale Helm v3+ ou use RUSTFS_DEPLOY_MODE=manifest."
@@ -105,6 +108,9 @@ kubectl wait --for=condition=ready pod -l app=postgres -n "$NAMESPACE" --timeout
 echo -e "${YELLOW}⏳ Aguardando RabbitMQ ficar pronto...${NC}"
 kubectl wait --for=condition=ready pod -l app=rabbitmq -n "$NAMESPACE" --timeout=300s
 
+echo -e "${YELLOW}⏳ Aguardando Redis ficar pronto...${NC}"
+kubectl wait --for=condition=ready pod -l app=redis -n "$NAMESPACE" --timeout=300s
+
 echo -e "${YELLOW}⏳ Aguardando Rustfs ficar pronto...${NC}"
 if kubectl get statefulset rustfs -n "$NAMESPACE" >/dev/null 2>&1; then
   kubectl rollout status statefulset/rustfs -n "$NAMESPACE" --timeout=300s
@@ -114,7 +120,7 @@ else
   kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=rustfs -n "$NAMESPACE" --timeout=300s
 fi
 
-echo -e "${YELLOW}7. Garantindo bucket no Rustfs...${NC}"
+echo -e "${YELLOW}8. Garantindo bucket no Rustfs...${NC}"
 kubectl delete job rustfs-bootstrap-bucket -n "$NAMESPACE" --ignore-not-found=true
 kubectl apply -f "$K8S_DIR/rustfs-bootstrap-bucket-job.yaml"
 if ! kubectl wait --for=condition=complete job/rustfs-bootstrap-bucket -n "$NAMESPACE" --timeout=300s; then
@@ -124,17 +130,37 @@ if ! kubectl wait --for=condition=complete job/rustfs-bootstrap-bucket -n "$NAME
 fi
 
 # Aplicações
-echo -e "${YELLOW}8. Deploying API...${NC}"
+echo -e "${YELLOW}8. Deploying Prometheus...${NC}"
+kubectl apply -f "$K8S_DIR/prometheus.yaml"
+
+echo -e "${YELLOW}9. Deploying Grafana...${NC}"
+kubectl apply -f "$K8S_DIR/grafana.yaml"
+
+echo -e "${YELLOW}9.1. Criando ConfigMap dos dashboards do Grafana...${NC}"
+kubectl delete configmap grafana-dashboards -n "$NAMESPACE" --ignore-not-found=true
+kubectl create configmap grafana-dashboards \
+  --from-file="$K8S_DIR/../docker/grafana/dashboards/api-performance-dashboard.json" \
+  --from-file="$K8S_DIR/../docker/grafana/dashboards/video-processing-dashboard.json" \
+  --from-file="$K8S_DIR/../docker/grafana/dashboards/user-notifier-dashboard.json" \
+  -n "$NAMESPACE"
+
+echo -e "${YELLOW}⏳ Aguardando Prometheus ficar pronto...${NC}"
+kubectl wait --for=condition=ready pod -l app=prometheus -n "$NAMESPACE" --timeout=300s
+
+echo -e "${YELLOW}⏳ Aguardando Grafana ficar pronto...${NC}"
+kubectl wait --for=condition=ready pod -l app=grafana -n "$NAMESPACE" --timeout=300s
+
+echo -e "${YELLOW}10. Deploying API...${NC}"
 kubectl apply -f "$K8S_DIR/api.yaml"
 kubectl set image deployment/api api="$API_IMAGE" -n "$NAMESPACE"
 
-echo -e "${YELLOW}9. Deploying Video Processor...${NC}"
+echo -e "${YELLOW}11. Deploying Video Processor...${NC}"
 kubectl delete deployment video-processor -n "$NAMESPACE" --ignore-not-found=true
 kubectl delete hpa video-processor-hpa -n "$NAMESPACE" --ignore-not-found=true
 kubectl apply -f "$K8S_DIR/video-processor.yaml"
 kubectl set image deployment/video-processor video-processor="$VIDEO_PROCESSOR_IMAGE" -n "$NAMESPACE"
 
-echo -e "${YELLOW}10. Deploying User Notifier...${NC}"
+echo -e "${YELLOW}11. Deploying User Notifier...${NC}"
 kubectl delete deployment user-notifier -n "$NAMESPACE" --ignore-not-found=true
 kubectl delete hpa user-notifier-hpa -n "$NAMESPACE" --ignore-not-found=true
 kubectl apply -f "$K8S_DIR/user-notifier.yaml"
@@ -175,5 +201,8 @@ echo "Acesso API (NodePort):      http://localhost:30080"
 echo "Acesso Gatekeeper:          http://localhost:30081"
 echo "RustFS Console:             http://localhost:30901"
 echo "RabbitMQ Management:        http://localhost:31672"
+echo "Prometheus:                 http://localhost:30090"
+echo "Grafana:                    http://localhost:30030 (admin/admin123)"
+echo "Redis (ClusterIP):          redis://redis:6379"
 echo "Acesso Ingress HTTP:        http://localhost:8080"
 echo "Acesso Ingress HTTPS:       https://localhost:8443"

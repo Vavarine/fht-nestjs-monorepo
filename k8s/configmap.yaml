@@ -14,6 +14,7 @@ data:
   RABBITMQ_REQUEUE_ON_ERROR: "true"
   USER_NOTIFIER_SERVICE_QUEUE: "user_notifier_queue"
   GATEKEEPER_URL: "http://gatekeeper:3000"
+  REDIS_URL: "redis://redis:6379"
   FS_ENDPOINT_URL: "http://rustfs-svc:9000"
   FS_ENDPOINT_URL_PUBLIC: "http://localhost:9000"
   FS_BUCKET_NAME: "fht-videos-dev"

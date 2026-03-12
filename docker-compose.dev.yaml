@@ -37,6 +37,19 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+  redisdev:
+    image: redis:7-alpine
+    container_name: fiap-hack-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdatadev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   rustfs:
     image: rustfs/rustfs:latest
     container_name: fiap-hack-rustfs
@@ -124,6 +137,7 @@ services:
         printf "COGNITO_USER_POOL_ID=$$pool_id\nCOGNITO_CLIENT_ID=$$client_id\n" > /output/cognito.env
 volumes:
   pgdatadev:
+  redisdatadev:
   rustfs_data:
   rustfs_logs:
   local-cognito:

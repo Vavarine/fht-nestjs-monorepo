@@ -40,6 +40,18 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: redis-pvc
+  namespace: fiap-hack
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: cognito-local-pvc
   namespace: fiap-hack
 spec:
@@ -47,4 +59,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 5Gi

@@ -79,6 +79,9 @@
       ],
       "@file-manager/utils/*": [
         "./libs/file-manager/src/utils/*"
+      ],
+      "@test/*": [
+        "./test/*"
       ]
     }
   }

@@ -12,6 +12,9 @@ async function bootstrap() {
     }),
   });
 
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+
   const config = new DocumentBuilder()
     .setTitle("FIAP Hackathon API")
     .setDescription("Video Processing API for FIAP Hackathon")

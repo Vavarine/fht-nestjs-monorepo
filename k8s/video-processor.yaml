@@ -17,17 +17,21 @@ spec:
     metadata:
       labels:
         app: video-processor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3001"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: video-processor
         image: vavarine/fiap-hack-video-processor:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 3000
+        - containerPort: 3001
           name: http
         env:
         - name: VIDEO_PROCESSOR_PORT
-          value: "3000"
+          value: "3001"
         envFrom:
         - configMapRef:
             name: app-config
@@ -43,7 +47,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: 3000
+            port: 3001
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
@@ -51,7 +55,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /
-            port: 3000
+            port: 3001
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 5
@@ -66,6 +70,21 @@ spec:
       - name: wait-for-rustfs
         image: busybox:1.28
         command: ['sh', '-c', 'attempt=0; until wget -q --spider http://rustfs-svc:9000/health; do attempt=$((attempt+1)); if [ "$attempt" -ge 150 ]; then echo timeout waiting for rustfs health; exit 1; fi; echo waiting for rustfs health; sleep 2; done']
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-processor
+  namespace: fiap-hack
+spec:
+  selector:
+    app: video-processor
+  type: ClusterIP
+  ports:
+  - port: 3001
+    targetPort: 3001
+    name: http
 
 ---
 apiVersion: autoscaling/v2

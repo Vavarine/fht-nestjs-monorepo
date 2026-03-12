@@ -27,6 +27,20 @@ services:
       retries: 5
       start_period: 30s
 
+  redisdev:
+    image: redis:7-alpine
+    container_name: fiap-hack-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   rustfs:
     image: rustfs/rustfs:latest
     container_name: fiap-hack-rustfs
@@ -48,15 +62,17 @@ services:
         condition: service_started
       rabbitmqdev:
         condition: service_healthy
+      redisdev:
+        condition: service_healthy
       rustfs:
         condition: service_started
     ports:
       - "3000:3000"
     restart: unless-stopped
 
-  video-processor:
-    image: fiap-hack-video-processor
-    container_name: fiap-hack-video-processor
+  worker:
+    image: fiap-hack-worker
+    container_name: fiap-hack-worker
     env_file:
       - .env
     depends_on:
@@ -64,11 +80,62 @@ services:
         condition: service_started
       rabbitmqdev:
         condition: service_healthy
-      rustfs:
-        condition: service_started
+    ports:
+      - "3002:3000"
     restart: unless-stopped
+    networks:
+      - default
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fiap-hack-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheusdata:/prometheus
+    depends_on:
+      - api
+      - worker
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fiap-hack-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafanadata:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
 
 volumes:
   pgdatadev:
+  prometheusdata:
+  grafanadata:
+  redisdata:
   rustfs_data:
   rustfs_logs:

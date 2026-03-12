@@ -16,3 +16,5 @@
 /uploads-test/*
 !.gitkeep
 /generated/prisma
+
+.env

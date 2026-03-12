@@ -1,41 +1,56 @@
 # FIAP Hackathon NestJs Monorepo
 
+<<<<<<< HEAD
+
 ## Rodando a Aplicação
+
+1. # Instale as dependências:
+   [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Lauraellen_fht-nestjs-monorepo&metric=coverage&token=95f37a91b4f51c4e850222c62aa15edd671486e5)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Lauraellen_fht-nestjs-monorepo&metric=bugs&token=95f37a91b4f51c4e850222c62aa15edd671486e5)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo)
+
+## Rodando a Aplicação
+
+> > > > > > > main
+
+### 🚀 **Início Rápido (Recomendado)**
 
 1. Instale as dependências:
 
 ```bash
-   pnpm install
+pnpm install
 ```
 
-2. Inicie o ambiente de desenvolvimento com Docker (PostgreSQL e RabbitMQ):
+<<<<<<< HEAD 2. Inicie o ambiente de desenvolvimento com Docker (PostgreSQL e RabbitMQ):
+
+======= 2. **Suba TODA a infraestrutura** (PostgreSQL + RabbitMQ + RustFS + Prometheus + Grafana):
+
+> > > > > > > main
 
 ```bash
-   pnpm docker:dev:up
+pnpm docker:dev:up
 ```
 
 3. Rode as migrations do banco:
 
 ```bash
-   pnpm prisma:dev:migrate
+pnpm prisma:dev:migrate
 ```
 
 4. Gere o client do Prisma:
 
 ```bash
-   pnpm prisma:dev:generate
+pnpm prisma:dev:generate
 ```
 
 5. Inicie a aplicação da API:
 
 ```bash
-   pnpm start:dev api
+pnpm start:dev api
 ```
 
 6. Inicie a aplicação video-processor:
 
 ```bash
-   pnpm start:dev video-processor
+pnpm start:dev video-processor
 ```
 
 7. Inicie a aplicação gatekeeper:
@@ -44,13 +59,52 @@
    pnpm start:dev gatekeeper
 ```
 
-8. Inicie a aplicação de notificações:
+8. Inicie a aplicação user-notifier:
 
 ```bash
-   pnpm start:dev user-notifier
+pnpm start:dev user-notifier
 ```
 
-Agora você pode acessar a API em `http://localhost:3000` e a interface de gerenciamento do RabbitMQ em `http://localhost:15672` (usuário e senha padrão: `guest`).
+**🎯 Pronto! Agora você pode acessar:**
+
+- **API**: http://localhost:3000
+- **Video Processor**: http://localhost:3001
+- **User Notifier**: http://localhost:3002
+- **Grafana** (Dashboards): http://localhost:3003 (admin/admin123)
+- **Prometheus** (Métricas): http://localhost:9090
+- **RabbitMQ Management**: http://localhost:15672 (guest/guest)
+- **RustFS Console**: http://localhost:9001
+
+### 📊 **Comandos Docker Úteis**
+
+```bash
+# Ver logs em tempo real
+pnpm docker:dev:logs
+
+# Parar tudo
+pnpm docker:dev:down
+
+# Parar e limpar volumes (reset completo)
+pnpm docker:dev:clean
+```
+
+## ✅ **Verificar se está funcionando**
+
+```bash
+# Testar API
+curl http://localhost:3000/
+
+# Testar métricas da API
+curl http://localhost:3000/metrics
+
+# Testar métricas do Video Processor
+curl http://localhost:3001/metrics
+
+# Testar métricas do User Notifier
+curl http://localhost:3002/metrics
+```
+
+---
 
 ## Rodando em Produção via Docker Compose
 
@@ -66,6 +120,7 @@ Build da imagem do video-processor:
    docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
 ```
 
+<<<<<<< HEAD
 Build da imagem do gatekeeper:
 
 ```bash
@@ -73,6 +128,11 @@ Build da imagem do gatekeeper:
 ```
 
 Build da imagem do user-notifier:
+
+=======
+Build da imagem do user-notifier:
+
+> > > > > > > main
 
 ```bash
    docker build -t fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .
@@ -107,7 +167,27 @@ Se a execução de script estiver bloqueada, dê permissão antes:
 chmod +x k8s/create-k3d-cluster.sh k8s/deploy.sh
 ```
 
+<<<<<<< HEAD
+
 ### 2. Faça o deploy de todos os recursos Kubernetes
+
+=======
+
+### 2. Build e import das imagens Docker (desenvolvimento local)
+
+```bash
+# Build das imagens
+docker build -t fiap-hack-api:latest -f docker/api.dockerfile .
+docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
+docker build -t fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .
+
+# Import para o k3d cluster
+./k3d.exe image import fiap-hack-api:latest fiap-hack-video-processor:latest fiap-hack-user-notifier:latest -c fht-cluster
+```
+
+### 3. Faça o deploy de todos os recursos Kubernetes
+
+> > > > > > > main
 
 ```bash
 ./k8s/deploy.sh
@@ -129,12 +209,22 @@ helm repo update
 helm search repo rustfs
 ```
 
+<<<<<<< HEAD
+
 ### 3. Valide os recursos
+
+=======
+
+### 4. Valide os recursos
+
+> > > > > > > main
 
 ```bash
 kubectl get pods -n fiap-hack
 kubectl get svc -n fiap-hack
 ```
+
+<<<<<<< HEAD
 
 ### 4. Acesse os serviços
 
@@ -144,10 +234,74 @@ kubectl get svc -n fiap-hack
 
 ### 5. Comandos úteis de debug
 
+=======
+
+### 5. Acesse os serviços
+
+- **API** (NodePort): http://localhost:30080
+- **User Notifier** (NodePort): http://localhost:30082
+- **Grafana** (Dashboards): http://localhost:30030 (admin/admin123)
+- **Prometheus** (Métricas): http://localhost:30090
+- **RustFS Console**: http://localhost:30901
+- **RabbitMQ Management**: http://localhost:31672 (guest/guest)
+
+### 6. Comandos úteis de debug
+
+> > > > > > > main
+
 ```bash
 kubectl logs -n fiap-hack deployment/api -f
 kubectl logs -n fiap-hack deployment/video-processor -f
+kubectl logs -n fiap-hack deployment/user-notifier -f
 kubectl get events -n fiap-hack --sort-by='.lastTimestamp'
+```
+
+## 🧪 Executando Testes
+
+O projeto possui uma suíte completa de testes unitários para os use cases.
+
+### Testes Unitários
+
+#### Executar todos os testes
+
+```bash
+pnpm test
+```
+
+#### Executar testes com coverage
+
+```bash
+pnpm test:cov
+```
+
+#### Executar testes em modo watch (desenvolvimento)
+
+```bash
+pnpm test:watch
+```
+
+### Testes E2E (End-to-End)
+
+#### Testes E2E com mocks (rápido, sem infraestrutura)
+
+```bash
+pnpm test:e2e
+```
+
+#### Testes E2E completos (requer infraestrutura)
+
+```bash
+# 1. Subir toda a infraestrutura
+pnpm docker:dev:up
+
+# 2. Executar testes E2E completos
+pnpm test:e2e:full
+```
+
+#### Testes E2E com coverage
+
+```bash
+pnpm test:e2e:cov
 ```
 
 ## Teste de carga com k6
@@ -196,8 +350,7 @@ AUTH_TOKEN=<seu_token_jwt> pnpm loadtest:k6
 - [x] Implementar sistema de arquivos compartilhado (Volumes Docker)
 - [x] Implementar sistema de arquivos S3 Like subido pelo docker
 - [x] Implementa o k8s
-
-- [ ] Observabilidade (Prometheus Grafana Worker)
+- [x] Observabilidade (Prometheus Grafana)
 - [ ] Worker de notificacões
 
 - [ ] Usuários Login Senha (Subir cognito like servico? Fazer internamente?)

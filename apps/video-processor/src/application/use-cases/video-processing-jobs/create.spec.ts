@@ -1,129 +1,166 @@
-import { InMemoryCartsRepository } from "@test/repositories/in-memory-carts-repository";
-import { Customer } from "@api/application/entities/customer";
-import { Cart } from "@api/application/entities/carts";
-import { CustomerNotFound } from "../../errors/customer-error";
-import { CreateCart } from "./process-video";
-import { InMemoryCustomersRepository } from "@test/repositories/in-memory-cutomers-repository";
+import { FileManagerMock } from "@test/mocks/file-manager.mock";
+import { VideoProcessingPublisherJobMock } from "@test/mocks/video-processing-publisher.mock";
+import { ProcessVideo } from "./process-video";
+import { VideoProcessingJobStatus } from "@api/application/entities/video-processing-job";
 
-describe("CreateCart", () => {
-  let createCart: CreateCart;
-  let cartsRepository: InMemoryCartsRepository;
-  let customerRepository: InMemoryCustomersRepository;
+// Mock fs module
+jest.mock("node:fs", () => ({
+  createReadStream: jest.fn(() => ({
+    pipe: jest.fn(),
+    on: jest.fn(),
+  })),
+}));
+
+jest.mock("node:fs/promises", () => ({
+  rm: jest.fn().mockResolvedValue(undefined),
+}));
+
+// Mock for VideoProcessor
+class VideoProcessorMock {
+  async process(fileUrl: string, jobId: string): Promise<any> {
+    return {
+      zipFilePath: `/tmp/${jobId}.zip`,
+      outputDirPath: `/tmp/${jobId}`,
+    };
+  }
+}
+
+describe("ProcessVideo", () => {
+  let processVideo: ProcessVideo;
+  let fileManager: FileManagerMock;
+  let videoProcessor: VideoProcessorMock;
+  let videoProcessingPublisher: VideoProcessingPublisherJobMock;
 
   beforeEach(() => {
-    cartsRepository = new InMemoryCartsRepository();
-    customerRepository = new InMemoryCustomersRepository();
-    createCart = new CreateCart(cartsRepository);
+    fileManager = new FileManagerMock();
+    videoProcessor = new VideoProcessorMock();
+    videoProcessingPublisher = new VideoProcessingPublisherJobMock();
+    processVideo = new ProcessVideo(
+      fileManager as any,
+      videoProcessor as any,
+      videoProcessingPublisher as any,
+    );
+    
+    // Reset mocks
+    jest.clearAllMocks();
   });
 
-  describe("when customerId is provided (from Lambda/Cognito)", () => {
-    it("should create a cart with the provided customerId", async () => {
-      const cognitoCustomerId = "cognito-sub-12345";
-      const request = { customerId: cognitoCustomerId };
-      const response = await createCart.execute(request);
-
-      expect(response).toHaveProperty("cart");
-      expect(response.cart).toBeInstanceOf(Cart);
-      expect(response.cart.customerId).toBe(cognitoCustomerId);
-      expect(response.cart.items).toEqual([]);
-
-      const savedCart = await cartsRepository.findById(response.cart.id);
-      expect(savedCart).not.toBeNull();
-      expect(savedCart?.customerId).toBe(cognitoCustomerId);
-      expect(savedCart?.items).toEqual([]);
-    });
-
-    it("should use customerId even when CPF is also provided", async () => {
-      const cognitoCustomerId = "cognito-sub-67890";
-      const request = { cpf: "12345678901", customerId: cognitoCustomerId };
-      const response = await createCart.execute(request);
-
-      expect(response.cart.customerId).toBe(cognitoCustomerId);
-      expect(response.cart.items).toEqual([]);
-    });
-
-    it("should create multiple carts with different customerId", async () => {
-      const customerId1 = "cognito-sub-111";
-      const customerId2 = "cognito-sub-222";
-
-      const response1 = await createCart.execute({ customerId: customerId1 });
-      const response2 = await createCart.execute({ customerId: customerId2 });
-
-      expect(response1.cart.id).not.toBe(response2.cart.id);
-      expect(response1.cart.customerId).toBe(customerId1);
-      expect(response2.cart.customerId).toBe(customerId2);
-    });
-  });
-
-  describe("when no customerId is provided (anonymous cart)", () => {
-    it("should create an anonymous cart", async () => {
+  describe("video processing", () => {
+    it("should publish PROCESSING status at the start", async () => {
       const request = {
-        customerId: null,
+        videoProcessingJobId: "job-123",
+        fileId: "file-456",
       };
-      const response = await createCart.execute(request);
 
-      expect(response).toHaveProperty("cart");
-      expect(response.cart).toBeInstanceOf(Cart);
-      expect(response.cart.customerId).toBeUndefined();
-      expect(response.cart.items).toEqual([]);
+      await processVideo.execute(request);
 
-      const savedCart = await cartsRepository.findById(response.cart.id);
-      expect(savedCart).not.toBeNull();
-      expect(savedCart?.customerId).toBeUndefined();
-      expect(savedCart?.items).toEqual([]);
+      const firstMessage = videoProcessingPublisher.publishedMessages[0];
+      expect(firstMessage.status).toBe(VideoProcessingJobStatus.PROCESSING);
+      expect(firstMessage.jobId).toBe("job-123");
     });
 
-    it("should create anonymous cart when customerId is empty string", async () => {
-      const request = { customerId: "" };
-      const response = await createCart.execute(request);
-      expect(response.cart.customerId).toBeUndefined();
-      expect(response.cart.items).toEqual([]);
+    it("should get file URL from FileManager", async () => {
+      const request = {
+        videoProcessingJobId: "job-123",
+        fileId: "file-456",
+      };
+
+      const getFileUrlSpy = jest.spyOn(fileManager, "getFileUrl");
+
+      await processVideo.execute(request);
+
+      expect(getFileUrlSpy).toHaveBeenCalledWith(
+        "file-456",
+        expect.any(String),
+      );
     });
 
-    it("should create anonymous cart when customerId is undefined", async () => {
-      const request = { customerId: null };
-      const response = await createCart.execute(request);
-      expect(response.cart.customerId).toBeUndefined();
-      expect(response.cart.items).toEqual([]);
-    });
-  });
+    it("should process the video using VideoProcessor", async () => {
+      const request = {
+        videoProcessingJobId: "job-123",
+        fileId: "file-456",
+      };
 
-  describe("cart creation", () => {
-    it("should create multiple carts with different IDs", async () => {
-      const customerId1 = "cognito-sub-aaa";
-      const customerId2 = "cognito-sub-bbb";
+      const processSpy = jest.spyOn(videoProcessor, "process");
 
-      const response1 = await createCart.execute({ customerId: customerId1 });
-      const response2 = await createCart.execute({ customerId: customerId2 });
-      const response3 = await createCart.execute({ customerId: null });
+      await processVideo.execute(request);
 
-      expect(response1.cart.id).not.toBe(response2.cart.id);
-      expect(response1.cart.id).not.toBe(response3.cart.id);
-      expect(response2.cart.id).not.toBe(response3.cart.id);
-
-      expect(response1.cart.customerId).toBe(customerId1);
-      expect(response2.cart.customerId).toBe(customerId2);
-      expect(response3.cart.customerId).toBeUndefined();
+      expect(processSpy).toHaveBeenCalledWith(
+        expect.stringContaining("file-456"),
+        "job-123",
+      );
     });
 
-    it("should initialize cart with empty items array", async () => {
-      const customerId = "cognito-sub-ccc";
-      const response = await createCart.execute({ customerId });
+    it("should publish COMPLETED status on success", async () => {
+      const request = {
+        videoProcessingJobId: "job-123",
+        fileId: "file-456",
+      };
 
-      expect(response.cart.items).toEqual([]);
-      expect(Array.isArray(response.cart.items)).toBe(true);
-      expect(response.cart.items.length).toBe(0);
+      await processVideo.execute(request);
+
+      const completedMessage = videoProcessingPublisher.publishedMessages.find(
+        (msg) => msg.status === VideoProcessingJobStatus.COMPLETED,
+      );
+      expect(completedMessage).toBeDefined();
+      expect(completedMessage?.jobId).toBe("job-123");
+      expect(completedMessage?.fileName).toContain("job-123.zip");
     });
 
-    it("should handle anonymous cart creation", async () => {
-      const response = await createCart.execute({ customerId: null });
+    it("should publish FAILED status on error", async () => {
+      const request = {
+        videoProcessingJobId: "job-123",
+        fileId: "file-456",
+      };
 
-      expect(response.cart.customerId).toBeUndefined();
-      expect(response.cart.items).toEqual([]);
+      videoProcessor.process = jest
+        .fn()
+        .mockRejectedValue(new Error("Processing failed"));
 
-      const savedCart = await cartsRepository.findById(response.cart.id);
-      expect(savedCart).not.toBeNull();
-      expect(savedCart?.customerId).toBeUndefined();
+      await processVideo.execute(request);
+
+      const failedMessage = videoProcessingPublisher.publishedMessages.find(
+        (msg) => msg.status === VideoProcessingJobStatus.FAILED,
+      );
+      expect(failedMessage).toBeDefined();
+      expect(failedMessage?.jobId).toBe("job-123");
+    });
+
+    it("should delete the original file after successful processing", async () => {
+      const request = {
+        videoProcessingJobId: "job-123",
+        fileId: "file-456",
+      };
+
+      const deleteByIdSpy = jest.spyOn(fileManager, "deleteById");
+
+      await processVideo.execute(request);
+
+      expect(deleteByIdSpy).toHaveBeenCalledWith("file-456");
+    });
+
+    it("should handle multiple video processing jobs independently", async () => {
+      const request1 = {
+        videoProcessingJobId: "job-111",
+        fileId: "file-111",
+      };
+      const request2 = {
+        videoProcessingJobId: "job-222",
+        fileId: "file-222",
+      };
+
+      await processVideo.execute(request1);
+      await processVideo.execute(request2);
+
+      const job1Messages = videoProcessingPublisher.publishedMessages.filter(
+        (msg) => msg.jobId === "job-111",
+      );
+      const job2Messages = videoProcessingPublisher.publishedMessages.filter(
+        (msg) => msg.jobId === "job-222",
+      );
+
+      expect(job1Messages.length).toBeGreaterThan(0);
+      expect(job2Messages.length).toBeGreaterThan(0);
     });
   });
 });

@@ -8,8 +8,27 @@ const config: Config = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['src/application/entities/**/*.(t|j)s', 'src/application/use-cases/**/*.(t|j)s'],
+  collectCoverageFrom: [
+    'apps/api/src/application/use-cases/**/*.ts',
+    'apps/video-processor/src/application/use-cases/**/*.ts',
+    'apps/video-processor/src/application/video-processor/**/*.ts',
+    'apps/user-notifier/src/application/use-cases/**/*.ts',
+    '!**/*.spec.ts',
+    '!**/*.mock.ts',
+    '!**/test/**',
+  ],
   coverageDirectory: './coverage',
+  coverageReporters: [
+    'text',
+    'lcov',
+    'clover',
+    'json',
+  ],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '.spec.ts$',
+    '.mock.ts$',
+  ],
   testEnvironment: 'node',
 
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
