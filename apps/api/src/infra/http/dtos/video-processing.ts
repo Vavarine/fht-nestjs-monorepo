@@ -3,13 +3,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import { VideoProcessingJob } from "@api/application/entities/video-processing-job";
 
 export class CreateVideoProcessingJobDTO {
-  @ApiProperty({ example: "Item 1" })
-  @IsNotEmpty()
-  @Length(5, 255)
-  name: string;
-
-  userId: string;
-
   @ApiProperty({ type: "string", format: "binary", required: true })
   file: Express.Multer.File;
 }
@@ -19,7 +12,7 @@ export class VideoProcessingJobResponse {
   id: string;
 
   @ApiProperty({ example: "processed-file-url" })
-  videoFile: string;
+  processedFile: string;
 
   @ApiProperty({
     example: VideoProcessingJob.Status.PENDING,

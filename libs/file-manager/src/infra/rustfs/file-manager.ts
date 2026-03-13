@@ -65,17 +65,15 @@ export class RustFSFileManager implements FileManager {
   }
 
   async save(data: Buffer | Readable, fileId: string): Promise<string> {
-    const randomFileName = generateRandomFileName(fileId);
-
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: this.bucketName,
-        Key: randomFileName,
+        Key: fileId,
         Body: data,
       }),
     );
 
-    return randomFileName;
+    return fileId;
   }
 
   async deleteById(fileId: string): Promise<void> {
@@ -111,8 +109,6 @@ export class RustFSFileManager implements FileManager {
       new GetObjectCommand({
         Bucket: this.bucketName,
         Key: fileId,
-        ResponseContentDisposition: "inline",
-        ResponseContentType: "video/mp4",
       }),
       { expiresIn: 3600 },
     );
@@ -126,8 +122,6 @@ export class RustFSFileManager implements FileManager {
       new GetObjectCommand({
         Bucket: this.bucketName,
         Key: fileId,
-        ResponseContentDisposition: "inline",
-        ResponseContentType: "video/mp4",
       }),
       { expiresIn: 3600 },
     );

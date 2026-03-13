@@ -53,7 +53,7 @@ export class VideoProcessingJobsController {
   @UseInterceptors(FileInterceptor("file"))
   async create(
     @Req() req: Request,
-    @Body() body: CreateVideoProcessingJobDTO,
+    @Body() _body: CreateVideoProcessingJobDTO,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -108,9 +108,12 @@ export class VideoProcessingJobsController {
       });
 
       return Promise.allSettled(
-        response.videoProcessingJobs.map((job) =>
-          VideoProcessingView.toHTTP(job, this.fileManager),
-        ),
+        response.videoProcessingJobs.map((job) => {
+          this.logger.log(
+            `Processing job ID: ${job.id} with status: ${job.status} and processed file: ${job.processedFile} `,
+          );
+          return VideoProcessingView.toHTTP(job, this.fileManager);
+        }),
       ).then((results) =>
         results.filter((r) => r.status === "fulfilled").map((r) => r.value),
       );
@@ -123,8 +126,7 @@ export class VideoProcessingJobsController {
   @MessagePattern("change_video_status")
   async status(@Payload() data, @Ctx() context) {
     this.logger.log(
-      "change status message received for job 11111 id: " +
-        data.videoProcessingJobId,
+      "change status message received for job id: " + data.videoProcessingJobId,
     );
 
     try {
