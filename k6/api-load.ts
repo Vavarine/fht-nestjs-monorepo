@@ -45,8 +45,6 @@ export default function () {
     file: http.file(FILE_BYTES, FILE_NAME, FILE_MIME_TYPE),
   };
 
-  console.log("token", AUTH_TOKEN);
-
   const headers = AUTH_TOKEN
     ? { Authorization: `Bearer ${AUTH_TOKEN}` }
     : ({} as Record<string, string>);

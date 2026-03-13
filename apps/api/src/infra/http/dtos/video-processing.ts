@@ -12,7 +12,7 @@ export class VideoProcessingJobResponse {
   id: string;
 
   @ApiProperty({ example: "processed-file-url" })
-  processedFile: string;
+  processedFile: string | undefined;
 
   @ApiProperty({
     example: VideoProcessingJob.Status.PENDING,
