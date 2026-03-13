@@ -30,6 +30,7 @@ $K3D_CMD cluster delete "${CLUSTER_NAME}" >/dev/null 2>&1 || true
 # - Portas padrão de Ingress expostas no host
 $K3D_CMD cluster create "${CLUSTER_NAME}" \
   -p "30080:30080@loadbalancer" \
+  -p "30081:30081@loadbalancer" \
   -p "30082:30082@loadbalancer" \
   -p "30090:30090@loadbalancer" \
   -p "30030:30030@loadbalancer" \

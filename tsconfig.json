@@ -41,11 +41,29 @@
       "@video-processor/utils/*": [
         "./apps/video-processor/src/utils/*"
       ],
+      "@gatekeeper/application/*": [
+        "./apps/gatekeeper/src/application/*"
+      ],
+      "@gatekeeper/helpers/*": [
+        "./apps/gatekeeper/src/helpers/*"
+      ],
+      "@gatekeeper/infra/*": [
+        "./apps/gatekeeper/src/infra/*"
+      ],
+      "@gatekeeper/application/utils/*": [
+        "./apps/gatekeeper/src/utils/*"
+      ],
       "@user-notifier/application/*": [
         "./apps/user-notifier/src/application/*"
       ],
       "@user-notifier/infra/*": [
         "./apps/user-notifier/src/infra/*"
+      ],
+      "@auth": [
+        "./libs/auth/src/index.ts"
+      ],
+      "@auth/*": [
+        "./libs/auth/src/*"
       ],
       "@file-manager": [
         "./libs/file-manager/src/index.ts"

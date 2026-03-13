@@ -11,6 +11,17 @@ services:
       - ${POSTGRES_PORT}:5432
     volumes:
       - pgdatadev:/var/lib/postgresql/data
+  databaseuserdev:
+    image: postgres:17
+    container_name: fiap-hack-db-user-dev
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_GATEKEEPER_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_GATEKEEPER_USER}
+      - POSTGRES_DB=${POSTGRES_GATEKEEPER_DB}
+    ports:
+      - ${POSTGRES_GATEKEEPER_PORT}:5432
+    volumes:
+      - pgdatauserdev:/var/lib/postgresql-user/data
   rabbitmqdev:
     image: rabbitmq:4-management
     container_name: fiap-hack-rabbitmq-dev
@@ -48,8 +59,86 @@ services:
     volumes:
       - rustfs_data:/data
       - rustfs_logs:/logs
+  local-cognito:
+    image: jagregory/cognito-local:latest
+    container_name: cognito-local
+    ports:
+      - "9229:9229"
+    volumes:
+      - /app/.cognito
+  cognito-bootstrap:
+    image: amazon/aws-cli:2.17.56
+    container_name: cognito-bootstrap
+    depends_on:
+      - local-cognito
+    environment:
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - ./cognito-credentials:/output
+    entrypoint: /bin/sh
+    command:
+      - -ec
+      - |
+        endpoint="http://cognito-local:9229"
+        pool_name="MyUserPool"
+        client_name="client-test"
+
+        echo "Aguardando cognito-local..."
+        attempts=0
+        until aws --endpoint-url "$$endpoint" cognito-idp list-user-pools --max-results 1 >/dev/null 2>&1; do
+          attempts=$$((attempts+1))
+          if [ "$$attempts" -ge 60 ]; then
+            echo "timeout aguardando cognito-local"
+            exit 1
+          fi
+          sleep 2
+        done
+
+        echo "Verificando user pool: $$pool_name"
+        pool_id=$$(aws --endpoint-url "$$endpoint" cognito-idp list-user-pools --max-results 60 \
+          --query "UserPools[?Name=='$$pool_name'].Id | [0]" --output text)
+
+        if [ "$$pool_id" = "None" ] || [ -z "$$pool_id" ]; then
+          echo "Criando user pool: $$pool_name"
+          pool_id=$$(aws --endpoint-url "$$endpoint" cognito-idp create-user-pool \
+            --pool-name "$$pool_name" \
+            --query 'UserPool.Id' --output text)
+          echo "User pool criado: $$pool_id"
+        else
+          echo "User pool ja existe: $$pool_id"
+        fi
+
+        echo "Verificando app client: $$client_name"
+        client_id=$$(aws --endpoint-url "$$endpoint" cognito-idp list-user-pool-clients \
+          --user-pool-id "$$pool_id" --max-results 60 \
+          --query "UserPoolClients[?ClientName=='$$client_name'].ClientId | [0]" --output text)
+
+        if [ "$$client_id" = "None" ] || [ -z "$$client_id" ]; then
+          echo "Criando app client: $$client_name"
+          client_id=$$(aws --endpoint-url "$$endpoint" cognito-idp create-user-pool-client \
+            --user-pool-id "$$pool_id" \
+            --client-name "$$client_name" \
+            --no-generate-secret \
+            --explicit-auth-flows ALLOW_USER_SRP_AUTH ALLOW_REFRESH_TOKEN_AUTH \
+            --query 'UserPoolClient.ClientId' --output text)
+          echo "App client criado: $$client_id"
+        else
+          echo "App client ja existe: $$client_id"
+        fi
+
+        echo ""
+        echo "=== Cognito Local Bootstrap ==="
+        echo "User Pool ID: $$pool_id"
+        echo "Client ID:    $$client_id"
+        echo "================================"
+
+        printf "COGNITO_USER_POOL_ID=$$pool_id\nCOGNITO_CLIENT_ID=$$client_id\n" > /output/cognito.env
 volumes:
   pgdatadev:
   redisdatadev:
   rustfs_data:
   rustfs_logs:
+  local-cognito:
+  pgdatauserdev:

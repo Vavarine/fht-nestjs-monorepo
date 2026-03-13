@@ -104,3 +104,4 @@ spec:
     targetPort: 9001
     nodePort: 30901
     name: admin
+

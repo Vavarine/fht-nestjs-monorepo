@@ -16,6 +16,15 @@
         "tsConfigPath": "apps/api/tsconfig.app.json"
       }
     },
+    "auth": {
+      "type": "library",
+      "root": "libs/auth",
+      "entryFile": "index",
+      "sourceRoot": "libs/auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/auth/tsconfig.lib.json"
+      }
+    },
     "file-manager": {
       "type": "library",
       "root": "libs/file-manager",
@@ -32,6 +41,15 @@
       "sourceRoot": "apps/video-processor/src",
       "compilerOptions": {
         "tsConfigPath": "apps/video-processor/tsconfig.app.json"
+      }
+    },
+    "gatekeeper": {
+      "type": "application",
+      "root": "apps/gatekeeper",
+      "entryFile": "main",
+      "sourceRoot": "apps/gatekeeper/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gatekeeper/tsconfig.app.json"
       }
     },
     "user-notifier": {

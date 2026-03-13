@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   Logger,
   Get,
+  Req,
   Inject,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -51,7 +52,8 @@ export class VideoProcessingJobsController {
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("file"))
   async create(
-    @Body() body: CreateVideoProcessingJobDTO,
+    @Req() req: Request,
+    @Body() _body: CreateVideoProcessingJobDTO,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -64,7 +66,7 @@ export class VideoProcessingJobsController {
   ) {
     const { buffer, originalname, mimetype } = file;
     const fileSizeMb = buffer.length / (1024 * 1024); // Convert to MB
-    const userId = "MOCK"; // TODO: Get from JWT token
+    const userId = req["customerId"]; // TODO: Get from JWT token
 
     // Record upload attempt
     this.metricsService.recordVideoUploadAttempt(userId);
@@ -99,16 +101,19 @@ export class VideoProcessingJobsController {
   })
   @Get("")
   @UseInterceptors(CacheInterceptor)
-  async list() {
+  async list(@Req() req: Request) {
     try {
       const response = await this.listVideoProcessingJob.execute({
-        userId: "MOCK",
+        userId: req["customerId"],
       });
 
       return Promise.allSettled(
-        response.videoProcessingJobs.map((job) =>
-          VideoProcessingView.toHTTP(job, this.fileManager),
-        ),
+        response.videoProcessingJobs.map((job) => {
+          this.logger.log(
+            `Processing job ID: ${job.id} with status: ${job.status} and processed file: ${job.processedFile} `,
+          );
+          return VideoProcessingView.toHTTP(job, this.fileManager);
+        }),
       ).then((results) =>
         results.filter((r) => r.status === "fulfilled").map((r) => r.value),
       );
@@ -133,19 +138,22 @@ export class VideoProcessingJobsController {
 
       // Record metrics based on status
       const userId = data.userId || "unknown";
-      if (data.status === 'completed') {
+      if (data.status === "completed") {
         this.metricsService.recordVideoJobProcessed(userId);
-        
+
         // If processing time is available, record it
         if (data.processingDuration) {
           this.metricsService.recordVideoProcessingDuration(
-            data.processingDuration, 
-            userId, 
-            data.videoSizeMb
+            data.processingDuration,
+            userId,
+            data.videoSizeMb,
           );
         }
-      } else if (data.status === 'failed') {
-        this.metricsService.recordVideoJobFailed(userId, data.errorType || 'processing_error');
+      } else if (data.status === "failed") {
+        this.metricsService.recordVideoJobFailed(
+          userId,
+          data.errorType || "processing_error",
+        );
       }
 
       const channel = context.getChannelRef();

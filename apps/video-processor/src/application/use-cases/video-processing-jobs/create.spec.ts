@@ -69,10 +69,7 @@ describe("ProcessVideo", () => {
 
       await processVideo.execute(request);
 
-      expect(getFileUrlSpy).toHaveBeenCalledWith(
-        "file-456",
-        expect.any(String),
-      );
+      expect(getFileUrlSpy).toHaveBeenCalledWith("file-456");
     });
 
     it("should process the video using VideoProcessor", async () => {

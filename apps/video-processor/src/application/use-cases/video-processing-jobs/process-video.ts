@@ -32,10 +32,7 @@ export class ProcessVideo {
 
     let artifact: ProcessedVideoArtifact | undefined;
 
-    const fileUrl = await this.fileManager.getFileUrl(
-      request.fileId,
-      process.env.FS_ENDPOINT_URL_PUBLIC || "http://localhost:9000",
-    );
+    const fileUrl = await this.fileManager.getFileUrl(request.fileId);
 
     try {
       artifact = await this.videoProcessor.process(

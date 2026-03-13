@@ -1,5 +1,7 @@
 export interface NotificationPayload {
   userId: string;
+  userEmail: string;
+  userName: string;
   videoProcessingJobId: string;
   status: string;
   fileName?: string;

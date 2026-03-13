@@ -13,9 +13,8 @@ export class VideoProcessingView {
 
     return {
       id: videoProcessingJob.id,
-      videoFile: await fileManager.getFileUrl(
-        videoProcessingJob.videoFile ?? "",
-        baseUrl,
+      processedFile: await fileManager.getPublicFileUrl(
+        videoProcessingJob.processedFile ?? "",
       ),
       status: videoProcessingJob.status,
     };

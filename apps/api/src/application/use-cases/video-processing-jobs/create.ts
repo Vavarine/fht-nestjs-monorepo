@@ -4,8 +4,9 @@ import {
 } from "@api/application/entities/video-processing-job";
 import { VideoProcessingPublisherJob } from "@api/application/publishers/video-processing.publisher";
 import { VideoProcessingJobRepository } from "@api/application/repositories/video-processing-job";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { FileManager } from "@file-manager";
+import { generateRandomFileName } from "@file-manager/utils/generate-random-file-name";
 
 interface CreateVideoProcessingJobRequest {
   buffer: Buffer<ArrayBufferLike>;
@@ -20,6 +21,8 @@ interface CreateVideoProcessingJobResponse {
 
 @Injectable()
 export class CreateVideoProcessingJob {
+  private readonly logger = new Logger(CreateVideoProcessingJob.name);
+
   constructor(
     private videoProcessingJobRepository: VideoProcessingJobRepository,
     private fileManager: FileManager,
@@ -30,7 +33,10 @@ export class CreateVideoProcessingJob {
     request: CreateVideoProcessingJobRequest,
   ): Promise<CreateVideoProcessingJobResponse> {
     const { buffer, originalFileName } = request;
-    const fileName = await this.fileManager.save(buffer, originalFileName);
+
+    const randomFileName = generateRandomFileName(originalFileName);
+
+    const fileName = await this.fileManager.save(buffer, randomFileName);
 
     const videoProcessingJob = new VideoProcessingJob({
       status: VideoProcessingJobStatus.PENDING,
@@ -44,6 +50,10 @@ export class CreateVideoProcessingJob {
     if (!createdVideoProcessingJob.videoFile) {
       throw new Error("Video file was not saved correctly");
     }
+
+    this.logger.debug(
+      `Created video processing job with ID: ${createdVideoProcessingJob.id} and video file: ${createdVideoProcessingJob.videoFile}`,
+    );
 
     await this.VideoProcessingPublisherJob.publish(
       createdVideoProcessingJob.id,
