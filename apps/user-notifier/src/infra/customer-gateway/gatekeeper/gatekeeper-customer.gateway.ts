@@ -10,7 +10,7 @@ import {
 export class GatekeeperCustomerGateway implements CustomerGateway {
   private readonly logger = new Logger(GatekeeperCustomerGateway.name);
   private readonly baseUrl =
-    process.env.GATEKEEPER_URL ?? "http://gatekeeper:3000";
+    process.env.GATEKEEPER_URL ?? "http://gatekeeper";
 
   constructor(private readonly httpService: HttpService) {}
 

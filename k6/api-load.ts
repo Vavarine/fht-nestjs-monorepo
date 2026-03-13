@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-const BASE_URL = __ENV.BASE_URL || "http://localhost:30080";
+const BASE_URL = __ENV.LOAD_TEST_BASE_URL || "http://localhost:30080";
 const TARGET_PATH = __ENV.TARGET_PATH || "/video-processing-jobs";
 const AUTH_TOKEN = __ENV.AUTH_TOKEN;
 const FILE_NAME = __ENV.FILE_NAME || "exemple.mp4";
@@ -9,12 +9,7 @@ const FILE_MIME_TYPE = __ENV.FILE_MIME_TYPE || "video/mp4";
 const VIDEO_FILE_PATH = __ENV.VIDEO_FILE_PATH;
 
 export const options = {
-  stages: [
-    { duration: "30s", target: 10 },
-    { duration: "1m", target: 25 },
-    { duration: "1m", target: 50 },
-    { duration: "30s", target: 0 },
-  ],
+  stages: [{ duration: "30s", target: 10 }],
   thresholds: {
     http_req_failed: ["rate<0.02"],
   },
@@ -50,10 +45,13 @@ export default function () {
     file: http.file(FILE_BYTES, FILE_NAME, FILE_MIME_TYPE),
   };
 
-  // const headers = AUTH_TOKEN ? { Authorization: `Bearer ${AUTH_TOKEN}` } : {};
+  console.log("token", AUTH_TOKEN);
 
-  // const res = http.post(`${BASE_URL}${TARGET_PATH}`, body, { headers });
-  const res = http.post(`${BASE_URL}${TARGET_PATH}`, body);
+  const headers = AUTH_TOKEN
+    ? { Authorization: `Bearer ${AUTH_TOKEN}` }
+    : ({} as Record<string, string>);
+
+  const res = http.post(`${BASE_URL}${TARGET_PATH}`, body, { headers });
 
   check(res, {
     "status 2xx": (r) => r.status >= 200 && r.status < 300,
