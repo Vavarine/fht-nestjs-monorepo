@@ -49,11 +49,13 @@ describe('CreateVideoProcessingJob', () => {
                 userId: 'user-123',
             };
 
-            await createVideoProcessingJob.execute(request);
+            const response = await createVideoProcessingJob.execute(request);
 
             expect(fileManager.savedFiles.size).toBe(1);
             const savedFileName = Array.from(fileManager.savedFiles.keys())[0];
-            expect(savedFileName).toContain('test-video.mp4');
+            expect(savedFileName).toMatch(/^mocked-\d+-.*\.mp4$/);
+            expect(fileManager.savedFiles.get(savedFileName)).toBe(buffer);
+            expect(response.videoProcessingJob.videoFile).toBe(savedFileName);
         });
 
         it('should store the job in the repository', async () => {
