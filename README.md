@@ -1,17 +1,11 @@
-# FIAP Hackathon NestJs Monorepo
+# FIAP Hackathon NestJS Monorepo
 
-<<<<<<< HEAD
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Lauraellen_fht-nestjs-monorepo\&metric=coverage\&token=95f37a91b4f51c4e850222c62aa15edd671486e5)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Lauraellen_fht-nestjs-monorepo\&metric=bugs\&token=95f37a91b4f51c4e850222c62aa15edd671486e5)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo)
 
-## Rodando a Aplicação
+## 🚀 Rodando a aplicação
 
-1. # Instale as dependências:
-   [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Lauraellen_fht-nestjs-monorepo&metric=coverage&token=95f37a91b4f51c4e850222c62aa15edd671486e5)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Lauraellen_fht-nestjs-monorepo&metric=bugs&token=95f37a91b4f51c4e850222c62aa15edd671486e5)](https://sonarcloud.io/summary/new_code?id=Lauraellen_fht-nestjs-monorepo)
-
-## Rodando a Aplicação
-
-> > > > > > > main
-
-### 🚀 **Início Rápido (Recomendado)**
+### Início rápido (recomendado)
 
 1. Instale as dependências:
 
@@ -19,189 +13,182 @@
 pnpm install
 ```
 
-<<<<<<< HEAD 2. Inicie o ambiente de desenvolvimento com Docker (PostgreSQL e RabbitMQ):
-
-======= 2. **Suba TODA a infraestrutura** (PostgreSQL + RabbitMQ + RustFS + Prometheus + Grafana):
-
-> > > > > > > main
+2. Suba toda a infraestrutura (PostgreSQL, RabbitMQ, RustFS, Prometheus e Grafana):
 
 ```bash
 pnpm docker:dev:up
 ```
 
-3. Rode as migrations do banco:
+3. Execute as migrations:
 
 ```bash
 pnpm prisma:dev:migrate
 ```
 
-4. Gere o client do Prisma:
+4. Gere o Prisma Client:
 
 ```bash
 pnpm prisma:dev:generate
 ```
 
-5. Inicie a aplicação da API:
+5. Inicie a API:
 
 ```bash
 pnpm start:dev api
 ```
 
-6. Inicie a aplicação video-processor:
+6. Inicie o Video Processor:
 
 ```bash
 pnpm start:dev video-processor
 ```
 
-7. Inicie a aplicação gatekeeper:
+7. Inicie o Gatekeeper:
 
 ```bash
-   pnpm start:dev gatekeeper
+pnpm start:dev gatekeeper
 ```
 
-8. Inicie a aplicação user-notifier:
+8. Inicie o User Notifier:
 
 ```bash
 pnpm start:dev user-notifier
 ```
 
-**🎯 Pronto! Agora você pode acessar:**
+### Serviços disponíveis
 
-- **API**: http://localhost:3000
-- **Video Processor**: http://localhost:3001
-- **User Notifier**: http://localhost:3002
-- **Grafana** (Dashboards): http://localhost:3003 (admin/admin123)
-- **Prometheus** (Métricas): http://localhost:9090
-- **RabbitMQ Management**: http://localhost:15672 (guest/guest)
-- **RustFS Console**: http://localhost:9001
+| Serviço             | Endereço                                 |
+| ------------------- | ---------------------------------------- |
+| API                 | http://localhost:3000                    |
+| Video Processor     | http://localhost:3001                    |
+| User Notifier       | http://localhost:3002                    |
+| Grafana             | http://localhost:3003 (`admin/admin123`) |
+| Prometheus          | http://localhost:9090                    |
+| RabbitMQ Management | http://localhost:15672 (`guest/guest`)   |
+| RustFS Console      | http://localhost:9001                    |
 
-### 📊 **Comandos Docker Úteis**
+## 📦 Comandos Docker úteis
 
 ```bash
-# Ver logs em tempo real
+# Ver logs
 pnpm docker:dev:logs
 
-# Parar tudo
+# Parar containers
 pnpm docker:dev:down
 
-# Parar e limpar volumes (reset completo)
+# Parar e remover volumes
 pnpm docker:dev:clean
 ```
 
-## ✅ **Verificar se está funcionando**
+## ✅ Verificando se está funcionando
 
 ```bash
-# Testar API
 curl http://localhost:3000/
-
-# Testar métricas da API
 curl http://localhost:3000/metrics
-
-# Testar métricas do Video Processor
 curl http://localhost:3001/metrics
-
-# Testar métricas do User Notifier
 curl http://localhost:3002/metrics
 ```
 
 ---
 
-## Rodando em Produção via Docker Compose
+# Rodando em produção com Docker Compose
 
-Build da imagem da API:
+## Build das imagens
 
-```bash
-  docker build -t fiap-hack-api:latest -f docker/api.dockerfile .
-```
-
-Build da imagem do video-processor:
+API
 
 ```bash
-   docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
+docker build -t fiap-hack-api:latest -f docker/api.dockerfile .
 ```
 
-<<<<<<< HEAD
-Build da imagem do gatekeeper:
+Video Processor
 
 ```bash
-   docker build -t fiap-hack-gatekeeper:latest -f docker/gatekeeper.dockerfile .
+docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
 ```
 
-Build da imagem do user-notifier:
-
-=======
-Build da imagem do user-notifier:
-
-> > > > > > > main
+Gatekeeper
 
 ```bash
-   docker build -t fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .
+docker build -t fiap-hack-gatekeeper:latest -f docker/gatekeeper.dockerfile .
 ```
 
-Suba com docker compose:
+User Notifier
 
 ```bash
-   docker compose -f docker-compose.prod.yaml up
+docker build -t fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .
 ```
 
-## Rodando no Kubernetes k3d
+## Subir ambiente
 
-### Pré-requisitos
+```bash
+docker compose -f docker-compose.prod.yaml up
+```
 
-- `docker`
-- `kubectl`
-- `k3d`
-- `helm` (v3+)
+---
 
-### 1. Crie (ou recrie) o cluster local
+# Rodando no Kubernetes (k3d)
 
-Esse script cria um cluster k3d com portas do host já mapeadas para acesso local.
+## Pré-requisitos
+
+* Docker
+* kubectl
+* k3d
+* Helm 3+
+
+## 1. Criar o cluster
 
 ```bash
 ./k8s/create-k3d-cluster.sh
 ```
 
-Se a execução de script estiver bloqueada, dê permissão antes:
+Caso necessário:
 
 ```bash
-chmod +x k8s/create-k3d-cluster.sh k8s/deploy.sh
+chmod +x k8s/create-k3d-cluster.sh
+chmod +x k8s/deploy.sh
 ```
 
-<<<<<<< HEAD
-
-### 2. Faça o deploy de todos os recursos Kubernetes
-
-=======
-
-### 2. Build e import das imagens Docker (desenvolvimento local)
+## 2. Build e import das imagens
 
 ```bash
-# Build das imagens
 docker build -t fiap-hack-api:latest -f docker/api.dockerfile .
+
 docker build -t fiap-hack-video-processor:latest -f docker/video-processor.dockerfile .
+
+docker build -t fiap-hack-gatekeeper:latest -f docker/gatekeeper.dockerfile .
+
 docker build -t fiap-hack-user-notifier:latest -f docker/user-notifier.dockerfile .
 
-# Import para o k3d cluster
-./k3d.exe image import fiap-hack-api:latest fiap-hack-video-processor:latest fiap-hack-user-notifier:latest -c fht-cluster
+k3d image import \
+    fiap-hack-api:latest \
+    fiap-hack-video-processor:latest \
+    fiap-hack-gatekeeper:latest \
+    fiap-hack-user-notifier:latest \
+    -c fht-cluster
 ```
 
-### 3. Faça o deploy de todos os recursos Kubernetes
+> **Windows:** caso utilize o executável diretamente, substitua `k3d` por `k3d.exe`.
 
-> > > > > > > main
+## 3. Deploy
 
 ```bash
 ./k8s/deploy.sh
 ```
 
-Observação: o RustFS é instalado via Helm (`rustfs/rustfs`) usando o arquivo `k8s/rustfs-helm-values.yaml`.
+O RustFS é instalado via Helm utilizando:
 
-Se o Helm falhar no seu ambiente, você pode usar o modo manifesto (fallback):
+```
+k8s/rustfs-helm-values.yaml
+```
+
+Caso o Helm apresente problemas:
 
 ```bash
 RUSTFS_DEPLOY_MODE=manifest ./k8s/deploy.sh
 ```
 
-Para depurar erro de Helm:
+Para depuração:
 
 ```bash
 helm repo add rustfs https://charts.rustfs.com --force-update
@@ -209,149 +196,147 @@ helm repo update
 helm search repo rustfs
 ```
 
-<<<<<<< HEAD
-
-### 3. Valide os recursos
-
-=======
-
-### 4. Valide os recursos
-
-> > > > > > > main
+## 4. Validar recursos
 
 ```bash
 kubectl get pods -n fiap-hack
+
 kubectl get svc -n fiap-hack
 ```
 
-<<<<<<< HEAD
+## 5. Serviços disponíveis
 
-### 4. Acesse os serviços
+| Serviço             | Endereço                                  |
+| ------------------- | ----------------------------------------- |
+| API                 | http://localhost:30080                    |
+| User Notifier       | http://localhost:30082                    |
+| Grafana             | http://localhost:30030 (`admin/admin123`) |
+| Prometheus          | http://localhost:30090                    |
+| RabbitMQ Management | http://localhost:31672 (`guest/guest`)    |
+| RustFS Console      | http://localhost:30901                    |
 
-- API (NodePort): `http://localhost:30080`
-- RustFS Console: `http://localhost:30901`
-- RabbitMQ Management: `http://localhost:31672`
-
-### 5. Comandos úteis de debug
-
-=======
-
-### 5. Acesse os serviços
-
-- **API** (NodePort): http://localhost:30080
-- **User Notifier** (NodePort): http://localhost:30082
-- **Grafana** (Dashboards): http://localhost:30030 (admin/admin123)
-- **Prometheus** (Métricas): http://localhost:30090
-- **RustFS Console**: http://localhost:30901
-- **RabbitMQ Management**: http://localhost:31672 (guest/guest)
-
-### 6. Comandos úteis de debug
-
-> > > > > > > main
+## 6. Comandos úteis
 
 ```bash
 kubectl logs -n fiap-hack deployment/api -f
+
 kubectl logs -n fiap-hack deployment/video-processor -f
+
+kubectl logs -n fiap-hack deployment/gatekeeper -f
+
 kubectl logs -n fiap-hack deployment/user-notifier -f
+
 kubectl get events -n fiap-hack --sort-by='.lastTimestamp'
 ```
 
-## 🧪 Executando Testes
+---
 
-O projeto possui uma suíte completa de testes unitários para os use cases.
+# 🧪 Testes
 
-### Testes Unitários
+## Testes unitários
 
-#### Executar todos os testes
+Executar todos:
 
 ```bash
 pnpm test
 ```
 
-#### Executar testes com coverage
+Coverage:
 
 ```bash
 pnpm test:cov
 ```
 
-#### Executar testes em modo watch (desenvolvimento)
+Modo watch:
 
 ```bash
 pnpm test:watch
 ```
 
-### Testes E2E (End-to-End)
+## Testes E2E
 
-#### Testes E2E com mocks (rápido, sem infraestrutura)
+### Com mocks
 
 ```bash
 pnpm test:e2e
 ```
 
-#### Testes E2E completos (requer infraestrutura)
+### Com infraestrutura completa
 
 ```bash
-# 1. Subir toda a infraestrutura
 pnpm docker:dev:up
 
-# 2. Executar testes E2E completos
 pnpm test:e2e:full
 ```
 
-#### Testes E2E com coverage
+### Coverage
 
 ```bash
 pnpm test:e2e:cov
 ```
 
-## Teste de carga com k6
+---
 
-O projeto possui um script de carga em `k6/api-load.ts` para o endpoint:
+# 🚀 Teste de carga (k6)
 
-- `POST /video-processing-jobs` (multipart/form-data)
+O projeto possui um teste de carga em:
 
-O upload usa o arquivo local `k6/exemple.mp4` por padrão.
+```
+k6/api-load.ts
+```
 
-### Opção 1: k6 instalado localmente
+Endpoint utilizado:
+
+```
+POST /video-processing-jobs
+```
+
+O upload utiliza, por padrão:
+
+```
+k6/exemple.mp4
+```
+
+## Executar localmente
 
 ```bash
 pnpm loadtest:k6
 ```
 
-### Opção 2: rodar k6 via Docker
+## Executar via Docker
 
 ```bash
 pnpm loadtest:k6:docker
 ```
 
-### Personalizar alvo do teste
+## Alterar URL
 
 ```bash
 BASE_URL=http://localhost:30080 TARGET_PATH=/video-processing-jobs pnpm loadtest:k6
 ```
 
-### Personalizar arquivo de vídeo de entrada
+## Alterar arquivo de vídeo
 
 ```bash
 VIDEO_FILE_PATH=./k6/exemple.mp4 pnpm loadtest:k6
 ```
 
-### Endpoint protegido (Bearer token)
+## Endpoint protegido
 
 ```bash
 AUTH_TOKEN=<seu_token_jwt> pnpm loadtest:k6
 ```
 
-## To-dos
+---
 
-- [x] Implementar função de trocar status do job no banco via api - Messageria
+# ✅ To-do
 
-- [x] Implementar a parte do processamento - ffmpeg.
-- [x] Implementar sistema de arquivos compartilhado (Volumes Docker)
-- [x] Implementar sistema de arquivos S3 Like subido pelo docker
-- [x] Implementa o k8s
-- [x] Observabilidade (Prometheus Grafana)
-- [ ] Worker de notificacões
-
-- [ ] Usuários Login Senha (Subir cognito like servico? Fazer internamente?)
-- [ ] CI/CD Buildar images
+* [x] Atualização de status do job via mensageria
+* [x] Processamento de vídeo com FFmpeg
+* [x] Sistema de arquivos compartilhado (Docker Volumes)
+* [x] Armazenamento S3-like
+* [x] Kubernetes
+* [x] Observabilidade (Prometheus + Grafana)
+* [ ] Worker de notificações
+* [ ] Login e autenticação de usuários
+* [ ] Pipeline de CI/CD para build e publicação das imagens
